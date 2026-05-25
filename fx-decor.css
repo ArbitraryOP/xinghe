@@ -1,0 +1,376 @@
+/*!
+ * fx-decor.css — Decorative SVG/Canvas decoration elements
+ * Companion stylesheet for fx-decor.js
+ * Theme: purple #b18cff / cyan #6ee7ff / pink #ff7eb6 / gold #ffd56e / bg #08080f
+ */
+
+/* ==================== 公共颜色变量 ==================== */
+:root {
+  --fxd-purple: #b18cff;
+  --fxd-cyan:   #6ee7ff;
+  --fxd-pink:   #ff7eb6;
+  --fxd-gold:   #ffd56e;
+  --fxd-bg:     #08080f;
+  --fxd-mono:   'Space Mono', 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* ==================== 1. 浮动行星系统 ==================== */
+.fxd-orrery {
+  position: fixed;
+  left: 40px;
+  bottom: 40px;
+  width: 200px;
+  height: 200px;
+  z-index: 55;
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(20px) scale(0.85);
+  transition: opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.8,.2,1);
+  will-change: transform, opacity;
+}
+.is-loaded .fxd-orrery {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.fxd-orrery svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+/* 星图编号小标签 */
+.fxd-orrery::after {
+  content: "SYS · 0427 ✦ ORBIT";
+  position: absolute;
+  bottom: -14px;
+  left: 4px;
+  font-family: var(--fxd-mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  color: rgba(177, 140, 255, 0.45);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* 恒星脉冲 */
+.fxd-star {
+  transform-origin: center;
+  animation: fxd-star-pulse 4s ease-in-out infinite;
+}
+@keyframes fxd-star-pulse {
+  0%, 100% { transform: scale(1);   filter: drop-shadow(0 0 6px var(--fxd-gold)) drop-shadow(0 0 14px rgba(255, 213, 110, 0.55)); }
+  50%      { transform: scale(1.12); filter: drop-shadow(0 0 12px var(--fxd-gold)) drop-shadow(0 0 24px rgba(255, 213, 110, 0.8)); }
+}
+
+/* 恒星外发光晕 */
+.fxd-star-halo {
+  transform-origin: center;
+  animation: fxd-halo 4s ease-in-out infinite;
+}
+@keyframes fxd-halo {
+  0%, 100% { opacity: 0.25; transform: scale(0.9);  }
+  50%      { opacity: 0.55; transform: scale(1.4); }
+}
+
+/* 轨道 */
+.fxd-orbit {
+  fill: none;
+  stroke: rgba(177, 140, 255, 0.18);
+  stroke-width: 0.6;
+  stroke-dasharray: 2 4;
+}
+
+/* 公转容器 */
+.fxd-orbit-group {
+  transform-origin: 100px 100px;
+  animation-name: fxd-revolve;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes fxd-revolve {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+
+/* 行星自转 (内部小容器) */
+.fxd-planet-spin {
+  transform-origin: center;
+  animation: fxd-revolve 8s linear infinite reverse;
+}
+
+/* 卫星轨道 */
+.fxd-moon-group {
+  transform-origin: center;
+  animation: fxd-revolve 3s linear infinite;
+}
+
+/* 悬停加速 (4 倍) */
+.fxd-orrery:hover .fxd-orbit-group { animation-duration: var(--fxd-fast-dur, 4s) !important; }
+.fxd-orrery:hover .fxd-moon-group  { animation-duration: 0.9s !important; }
+
+/* ==================== 2. 章节波纹分隔线 ==================== */
+.fxd-wave {
+  display: block;
+  width: 100%;
+  height: 60px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 1.4s ease, transform 1.4s ease;
+  position: relative;
+  z-index: 51;
+  margin: 0;
+}
+.fxd-wave.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fxd-wave svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.fxd-wave-path {
+  fill: none;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 4px rgba(177, 140, 255, 0.35));
+}
+
+.fxd-wave-path.a {
+  stroke-dasharray: 8 6;
+  animation: fxd-flow 9s linear infinite;
+}
+.fxd-wave-path.b {
+  stroke-dasharray: 2 10;
+  animation: fxd-flow 6s linear infinite reverse;
+  opacity: 0.55;
+}
+.fxd-wave-path.c {
+  stroke-dasharray: 1 14;
+  animation: fxd-flow 12s linear infinite;
+  opacity: 0.35;
+}
+@keyframes fxd-flow {
+  from { stroke-dashoffset: 0;    }
+  to   { stroke-dashoffset: -240; }
+}
+
+/* 波浪两侧的小光点 */
+.fxd-wave-dot {
+  fill: var(--fxd-cyan);
+  filter: drop-shadow(0 0 4px var(--fxd-cyan));
+  animation: fxd-blink 2.4s ease-in-out infinite;
+}
+.fxd-wave-dot.right {
+  fill: var(--fxd-pink);
+  filter: drop-shadow(0 0 4px var(--fxd-pink));
+  animation-delay: -1.2s;
+}
+@keyframes fxd-blink {
+  0%, 100% { opacity: 0.3; }
+  50%      { opacity: 1; }
+}
+
+/* ==================== 3. 顶部频谱条 ==================== */
+.fxd-spectrum {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 24px;
+  z-index: 56;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.8s ease 1.2s;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(8,8,15,0) 0%, rgba(8,8,15,0.3) 100%);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.is-loaded .fxd-spectrum { opacity: 0.78; }
+
+.fxd-spec-bar {
+  flex: 1;
+  min-width: 2px;
+  max-width: 8px;
+  height: 30%;
+  background: linear-gradient(180deg, var(--fxd-cyan) 0%, var(--fxd-purple) 100%);
+  border-radius: 1px;
+  transform-origin: bottom center;
+  will-change: transform;
+  box-shadow: 0 0 4px rgba(110, 231, 255, 0.5);
+}
+
+/* 频谱旁标签 */
+.fxd-spectrum::before {
+  content: "● LIVE";
+  position: absolute;
+  left: -52px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--fxd-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: rgba(255, 126, 182, 0.7);
+  animation: fxd-blink 1.6s ease-in-out infinite;
+}
+.fxd-spectrum::after {
+  content: "44.1k";
+  position: absolute;
+  right: -38px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: var(--fxd-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: rgba(110, 231, 255, 0.55);
+}
+
+/* ==================== 4. 角落十字标记 ==================== */
+.fxd-corner {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  z-index: 54;
+  pointer-events: none;
+  font-family: var(--fxd-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: rgba(177, 140, 255, 0.55);
+  opacity: 0;
+  transition: opacity 1.4s ease 1.6s;
+}
+.is-loaded .fxd-corner { opacity: 1; }
+
+.fxd-corner svg {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  overflow: visible;
+}
+
+.fxd-corner .fxd-cross-line {
+  stroke: var(--fxd-cyan);
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.85;
+}
+.fxd-corner .fxd-cross-ring {
+  fill: none;
+  stroke: var(--fxd-purple);
+  stroke-width: 0.8;
+  stroke-dasharray: 1 2;
+  animation: fxd-revolve 24s linear infinite;
+  transform-origin: center;
+}
+
+.fxd-corner .fxd-coord {
+  position: absolute;
+  white-space: nowrap;
+}
+
+/* 各角位置 */
+.fxd-corner.tl { top: 80px;   left: 20px;  }
+.fxd-corner.tr { top: 80px;   right: 20px; text-align: right; }
+.fxd-corner.bl { bottom: 20px; left: 20px;  }
+.fxd-corner.br { bottom: 20px; right: 20px; text-align: right; }
+
+.fxd-corner.tl svg { top: 0;    left: 0;   }
+.fxd-corner.tr svg { top: 0;    right: 0;  }
+.fxd-corner.bl svg { bottom: 0; left: 0;   }
+.fxd-corner.br svg { bottom: 0; right: 0;  }
+
+.fxd-corner.tl .fxd-coord { top: 20px; left: 20px;  }
+.fxd-corner.tr .fxd-coord { top: 20px; right: 20px; }
+.fxd-corner.bl .fxd-coord { bottom: 20px; left: 20px;  }
+.fxd-corner.br .fxd-coord { bottom: 20px; right: 20px; }
+
+/* ==================== 5. 中央指南针 ==================== */
+.fxd-compass {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.6);
+  width: 240px;
+  height: 240px;
+  z-index: 58;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.8s cubic-bezier(.2,.8,.2,1);
+  filter: drop-shadow(0 0 18px rgba(110, 231, 255, 0.35));
+}
+.fxd-compass.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
+}
+
+.fxd-compass svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.fxd-compass-ring   { fill: none; stroke: rgba(177, 140, 255, 0.6); stroke-width: 1; }
+.fxd-compass-inner  { fill: none; stroke: rgba(110, 231, 255, 0.45); stroke-width: 0.6; stroke-dasharray: 1 3; transform-origin: center; animation: fxd-revolve 30s linear infinite; }
+.fxd-compass-tick   { stroke: rgba(255, 126, 182, 0.55); stroke-width: 0.8; }
+.fxd-compass-tick.major { stroke: var(--fxd-gold); stroke-width: 1.2; }
+.fxd-compass-letter {
+  fill: var(--fxd-cyan);
+  font-family: var(--fxd-mono);
+  font-size: 12px;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  letter-spacing: 0.08em;
+}
+.fxd-compass-needle {
+  transform-origin: 120px 120px;
+  animation: fxd-needle-sweep 6s cubic-bezier(.5,.1,.5,.9) infinite;
+}
+@keyframes fxd-needle-sweep {
+  0%   { transform: rotate(-12deg); }
+  25%  { transform: rotate(42deg);  }
+  50%  { transform: rotate(8deg);   }
+  75%  { transform: rotate(-30deg); }
+  100% { transform: rotate(-12deg); }
+}
+.fxd-compass-center { fill: var(--fxd-gold); filter: drop-shadow(0 0 4px var(--fxd-gold)); }
+.fxd-compass-label {
+  fill: rgba(177, 140, 255, 0.7);
+  font-family: var(--fxd-mono);
+  font-size: 8px;
+  text-anchor: middle;
+  letter-spacing: 0.2em;
+}
+
+/* ==================== 响应式 ==================== */
+@media (max-width: 768px) {
+  .fxd-orrery   { transform: scale(0.7); left: 12px; bottom: 12px; transform-origin: bottom left; }
+  .fxd-corner   { width: 60px; height: 60px; font-size: 8px; }
+  .fxd-spectrum { width: 80px; height: 18px; }
+  .fxd-compass  { width: 180px; height: 180px; }
+}
+@media (max-width: 480px) {
+  .fxd-orrery   { display: none; }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .fxd-orbit-group, .fxd-moon-group, .fxd-planet-spin,
+  .fxd-star, .fxd-star-halo, .fxd-wave-path,
+  .fxd-compass-inner, .fxd-compass-needle, .fxd-corner .fxd-cross-ring {
+    animation-duration: 30s !important;
+  }
+}

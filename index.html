@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>星河 · Personal Universe</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="fx-scroll.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&family=Noto+Serif+SC:wght@200;300;600;900&family=Space+Mono&family=Cormorant+Garamond:ital,wght@1,300;1,600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ========== 开场加载 ========== -->
+  <div class="loader" id="loader">
+    <div class="loader-curtain top"></div>
+    <div class="loader-curtain bottom"></div>
+    <div class="loader-content">
+      <div class="loader-logo">
+        <span class="loader-mark">◆</span>
+      </div>
+      <div class="loader-name" id="loaderName">
+        <span data-char="X">X</span><span data-char="I">I</span><span data-char="N">N</span><span data-char="G">G</span><span data-char="H">H</span><span data-char="E">E</span>
+      </div>
+      <div class="loader-bar"><div class="loader-bar-fill" id="loaderFill"></div></div>
+      <div class="loader-percent"><span id="loaderPct">0</span><i>%</i></div>
+      <div class="loader-tag">LOADING UNIVERSE · 正在生成宇宙</div>
+    </div>
+  </div>
+
+  <!-- ========== 自定义光标 ========== -->
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- ========== 极光 + 粒子 ========== -->
+  <div class="aurora">
+    <div class="aurora-blob a1"></div>
+    <div class="aurora-blob a2"></div>
+    <div class="aurora-blob a3"></div>
+    <div class="aurora-blob a4"></div>
+  </div>
+  <canvas id="particleCanvas"></canvas>
+
+  <!-- 鼠标光晕 -->
+  <div class="mouse-glow" id="mouseGlow"></div>
+
+  <!-- 噪点纹理 -->
+  <div class="noise-overlay"></div>
+
+  <!-- 网格基线 -->
+  <div class="grid-bg"></div>
+
+  <!-- ========== 导航 ========== -->
+  <nav class="nav-bar">
+    <div class="nav-logo">
+      <span class="logo-mark">◆</span>
+      <span class="logo-text" data-scramble>XINGHE</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#home"    class="nav-link active" data-scramble>Home</a></li>
+      <li><a href="#about"   class="nav-link" data-scramble>About</a></li>
+      <li><a href="#skills"  class="nav-link" data-scramble>Skills</a></li>
+      <li><a href="#works"   class="nav-link" data-scramble>Works</a></li>
+      <li><a href="#contact" class="nav-link" data-scramble>Contact</a></li>
+    </ul>
+    <div class="nav-time" id="navTime">00:00:00</div>
+  </nav>
+
+  <!-- ========== 侧边章节指示器 ========== -->
+  <aside class="section-indicator" id="sectionIndicator">
+    <div class="indi-line"><div class="indi-progress" id="indiProgress"></div></div>
+    <ul class="indi-list">
+      <li data-target="#home"><span class="indi-num">01</span><span class="indi-name">首页 · Home</span><span class="indi-dot"></span></li>
+      <li data-target="#about"><span class="indi-num">02</span><span class="indi-name">关于 · About</span><span class="indi-dot"></span></li>
+      <li data-target="#skills"><span class="indi-num">03</span><span class="indi-name">技能 · Skills</span><span class="indi-dot"></span></li>
+      <li data-target="#works"><span class="indi-num">04</span><span class="indi-name">作品 · Works</span><span class="indi-dot"></span></li>
+      <li data-target="#contact"><span class="indi-num">05</span><span class="indi-name">联络 · Contact</span><span class="indi-dot"></span></li>
+    </ul>
+  </aside>
+
+  <!-- ========== 左侧装饰 ========== -->
+  <aside class="side-deco side-left">
+    <div class="vertical-text">CREATIVE / DEVELOPER / 二零二六</div>
+    <div class="side-line"></div>
+  </aside>
+
+  <!-- ========== 主内容 ========== -->
+  <main id="smoothMain">
+
+    <!-- ====== HERO ====== -->
+    <section id="home" class="hero">
+      <div class="hero-bg-text" data-parallax="0.05">UNIVERSE</div>
+      <svg class="hero-constellation" viewBox="0 0 800 600" preserveAspectRatio="none">
+        <g class="cons-lines">
+          <line x1="120" y1="80"  x2="240" y2="160" />
+          <line x1="240" y1="160" x2="360" y2="120" />
+          <line x1="360" y1="120" x2="500" y2="220" />
+          <line x1="500" y1="220" x2="640" y2="180" />
+          <line x1="240" y1="160" x2="180" y2="320" />
+          <line x1="180" y1="320" x2="320" y2="420" />
+          <line x1="320" y1="420" x2="500" y2="380" />
+          <line x1="500" y1="380" x2="640" y2="460" />
+          <line x1="500" y1="220" x2="500" y2="380" />
+        </g>
+        <g class="cons-stars">
+          <circle cx="120" cy="80"  r="2.5" />
+          <circle cx="240" cy="160" r="3" />
+          <circle cx="360" cy="120" r="2" />
+          <circle cx="500" cy="220" r="2.5" />
+          <circle cx="640" cy="180" r="2" />
+          <circle cx="180" cy="320" r="2.5" />
+          <circle cx="320" cy="420" r="2" />
+          <circle cx="500" cy="380" r="3" />
+          <circle cx="640" cy="460" r="2.5" />
+        </g>
+      </svg>
+
+      <div class="hero-content">
+        <div class="hero-tag fade-up">
+          <span class="dot-pulse"></span>
+          <span>在线 · 正在创造</span>
+        </div>
+
+        <h1 class="hero-title">
+          <span class="line" data-split>你好，我是</span>
+          <span class="line gradient-line" data-split>星河</span>
+          <span class="line en-line">
+            <span class="typing-text" id="typingText"></span><span class="caret">|</span>
+          </span>
+        </h1>
+
+        <p class="hero-desc fade-up delay-3">
+          <em>在代码、设计与想象的交界处</em><br />
+          搭建奇异结构的造物者。
+        </p>
+
+        <div class="hero-actions fade-up delay-4">
+          <a href="#about" class="btn btn-primary magnetic" data-magnetic>
+            <span class="btn-text" data-scramble>进入我的宇宙</span>
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="btn-shine"></span>
+          </a>
+          <a href="#contact" class="btn btn-ghost magnetic" data-magnetic>
+            <span class="btn-text" data-scramble>取得联系</span>
+          </a>
+        </div>
+
+        <div class="scroll-hint fade-up delay-5">
+          <div class="scroll-bar"><div class="scroll-bar-inner"></div></div>
+          <span>向下滚动 · SCROLL</span>
+        </div>
+      </div>
+
+      <!-- 漂浮装饰 -->
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+      </div>
+
+      <!-- Hero 右下角元数据 -->
+      <div class="hero-meta">
+        <div class="hero-meta-row"><span>LAT</span><span>31°14′N</span></div>
+        <div class="hero-meta-row"><span>LON</span><span>121°28′E</span></div>
+        <div class="hero-meta-row"><span>VER</span><span>v2.6 · 2026</span></div>
+      </div>
+    </section>
+
+    <!-- ====== ABOUT ====== -->
+    <section id="about" class="about">
+      <div class="section-header">
+        <span class="section-num" data-scramble>01 / 关于</span>
+        <h2 class="section-title" data-split-words>
+          在键盘与<em>诗</em>之间
+        </h2>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-card glass tilt-card spotlight">
+          <div class="card-corner tl"></div>
+          <div class="card-corner tr"></div>
+          <div class="card-corner bl"></div>
+          <div class="card-corner br"></div>
+
+          <div class="avatar-wrap">
+            <div class="avatar">
+              <div class="avatar-inner">XH</div>
+              <div class="avatar-ring"></div>
+              <div class="avatar-ring r2"></div>
+              <div class="avatar-orbit">
+                <span class="orbit-dot"></span>
+              </div>
+            </div>
+            <div class="avatar-status">
+              <span class="status-dot"></span>
+              <span>可被找到 / Available</span>
+            </div>
+          </div>
+
+          <div class="about-text">
+            <p class="lead">我把现实当作一份未完成的草稿，</p>
+            <p>用代码做骨，用色彩做衣，用算法做血液。<br />
+            白天我是工程师，深夜我是写诗的人。<br />
+            喜欢将看似无关的概念缝合成新的东西——<br />
+            一段会呼吸的网页，一只会哼歌的程序。</p>
+
+            <div class="meta-list">
+              <div class="meta-row"><span class="meta-key">位置</span><span class="meta-val">银河系 · 第三悬臂</span></div>
+              <div class="meta-row"><span class="meta-key">职业</span><span class="meta-val">前端工程师 / 创意开发者</span></div>
+              <div class="meta-row"><span class="meta-key">语言</span><span class="meta-val">中文 / English / JavaScript</span></div>
+              <div class="meta-row"><span class="meta-key">爱好</span><span class="meta-val">天文 · 摄影 · 茶 · 老电影</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-side">
+          <div class="stat-card glass spotlight">
+            <div class="stat-num" data-target="7">0</div>
+            <div class="stat-label">年开发经验</div>
+          </div>
+          <div class="stat-card glass spotlight">
+            <div class="stat-num" data-target="42">0</div>
+            <div class="stat-label">完成项目</div>
+          </div>
+          <div class="stat-card glass spotlight">
+            <div class="stat-num" data-target="128">0</div>
+            <div class="stat-label">咖啡 / 周</div>
+          </div>
+          <div class="stat-card glass spotlight">
+            <div class="stat-num infinity">∞</div>
+            <div class="stat-label">想做的事</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== SKILLS ====== -->
+    <section id="skills" class="skills">
+      <div class="section-header">
+        <span class="section-num" data-scramble>02 / 能力</span>
+        <h2 class="section-title" data-split-words>
+          我的<em>工具箱</em>
+        </h2>
+      </div>
+
+      <div class="skills-wrap">
+        <div class="skill-row glass spotlight">
+          <div class="skill-head">
+            <span class="skill-name">前端工程 · Frontend</span>
+            <span class="skill-percent" data-target="95">0%</span>
+          </div>
+          <div class="skill-bar"><div class="skill-fill" data-width="95"></div></div>
+          <div class="skill-tags">
+            <span data-scramble>React</span><span data-scramble>Vue</span><span data-scramble>TypeScript</span><span data-scramble>WebGL</span><span data-scramble>Three.js</span>
+          </div>
+        </div>
+
+        <div class="skill-row glass spotlight">
+          <div class="skill-head">
+            <span class="skill-name">视觉与动效 · Motion</span>
+            <span class="skill-percent" data-target="88">0%</span>
+          </div>
+          <div class="skill-bar"><div class="skill-fill" data-width="88"></div></div>
+          <div class="skill-tags">
+            <span data-scramble>GSAP</span><span data-scramble>Lottie</span><span data-scramble>Figma</span><span data-scramble>After Effects</span>
+          </div>
+        </div>
+
+        <div class="skill-row glass spotlight">
+          <div class="skill-head">
+            <span class="skill-name">后端与数据 · Backend</span>
+            <span class="skill-percent" data-target="80">0%</span>
+          </div>
+          <div class="skill-bar"><div class="skill-fill" data-width="80"></div></div>
+          <div class="skill-tags">
+            <span data-scramble>Node.js</span><span data-scramble>Python</span><span data-scramble>PostgreSQL</span><span data-scramble>Redis</span>
+          </div>
+        </div>
+
+        <div class="skill-row glass spotlight">
+          <div class="skill-head">
+            <span class="skill-name">创意编程 · Creative Coding</span>
+            <span class="skill-percent" data-target="92">0%</span>
+          </div>
+          <div class="skill-bar"><div class="skill-fill" data-width="92"></div></div>
+          <div class="skill-tags">
+            <span data-scramble>p5.js</span><span data-scramble>Shader</span><span data-scramble>Generative</span><span data-scramble>TouchDesigner</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== WORKS ====== -->
+    <section id="works" class="works">
+      <div class="section-header">
+        <span class="section-num" data-scramble>03 / 作品</span>
+        <h2 class="section-title" data-split-words>
+          最近的<em>造物</em>
+        </h2>
+      </div>
+
+      <div class="works-grid">
+        <a href="#" class="work-card tilt-card spotlight">
+          <div class="work-visual w1">
+            <div class="work-glow"></div>
+            <div class="work-orb"></div>
+          </div>
+          <div class="work-info">
+            <span class="work-year">2026</span>
+            <h3 data-scramble>星图 · Stellaris</h3>
+            <p>一个交互式三维星图，把你写的代码可视化为星座。</p>
+            <div class="work-tags"><span>Three.js</span><span>WebGL</span></div>
+            <span class="work-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="#" class="work-card tilt-card spotlight">
+          <div class="work-visual w2">
+            <div class="work-glow"></div>
+            <div class="work-orb"></div>
+          </div>
+          <div class="work-info">
+            <span class="work-year">2025</span>
+            <h3 data-scramble>纸短 · Letterly</h3>
+            <p>一封写给陌生人的信，匿名漂流穿过整个互联网。</p>
+            <div class="work-tags"><span>Next.js</span><span>Edge</span></div>
+            <span class="work-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="#" class="work-card tilt-card spotlight">
+          <div class="work-visual w3">
+            <div class="work-glow"></div>
+            <div class="work-orb"></div>
+          </div>
+          <div class="work-info">
+            <span class="work-year">2025</span>
+            <h3 data-scramble>呼吸 · Breathe</h3>
+            <p>跟随屏幕节奏吸气、停顿、呼出 —— 一个会冥想的网页。</p>
+            <div class="work-tags"><span>Canvas</span><span>Audio</span></div>
+            <span class="work-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="#" class="work-card tilt-card spotlight">
+          <div class="work-visual w4">
+            <div class="work-glow"></div>
+            <div class="work-orb"></div>
+          </div>
+          <div class="work-info">
+            <span class="work-year">2024</span>
+            <h3 data-scramble>第六感 · Sixth</h3>
+            <p>用手机陀螺仪在空气中"画画"的小型实验。</p>
+            <div class="work-tags"><span>PWA</span><span>Sensor</span></div>
+            <span class="work-arrow">→</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ====== 跑马灯 ====== -->
+    <section class="quote">
+      <div class="quote-track">
+        <span>CODE IS POETRY</span><span class="dot">✦</span>
+        <span>代码是诗</span><span class="dot">✦</span>
+        <span>BUILD &amp; BREAK</span><span class="dot">✦</span>
+        <span>造物 与 破坏</span><span class="dot">✦</span>
+        <span>STAY CURIOUS</span><span class="dot">✦</span>
+        <span>保持好奇</span><span class="dot">✦</span>
+        <span>CODE IS POETRY</span><span class="dot">✦</span>
+        <span>代码是诗</span><span class="dot">✦</span>
+        <span>BUILD &amp; BREAK</span><span class="dot">✦</span>
+        <span>造物 与 破坏</span><span class="dot">✦</span>
+        <span>STAY CURIOUS</span><span class="dot">✦</span>
+        <span>保持好奇</span><span class="dot">✦</span>
+      </div>
+    </section>
+
+    <!-- ====== CONTACT ====== -->
+    <section id="contact" class="contact">
+      <div class="section-header">
+        <span class="section-num" data-scramble>04 / 联络</span>
+        <h2 class="section-title" data-split-words>
+          写一封<em>信</em>给我
+        </h2>
+      </div>
+
+      <div class="contact-grid">
+        <div class="contact-info">
+          <p class="contact-lead">
+            如果你也喜欢深夜的代码、奇怪的点子、<br />
+            或者只是想说一句你好 —— 我就在这里。
+          </p>
+
+          <a href="mailto:hello@xinghe.dev" class="big-mail magnetic" data-magnetic>
+            <span class="big-mail-en">hello@xinghe.dev</span>
+            <svg viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </a>
+
+          <div class="contact-channels">
+            <div><span>GH</span><a href="#" data-scramble>github.com/xinghe</a></div>
+            <div><span>TW</span><a href="#" data-scramble>@xinghe_dev</a></div>
+            <div><span>LK</span><a href="#" data-scramble>linkedin.com/in/xinghe</a></div>
+          </div>
+        </div>
+
+        <form class="contact-form glass" id="contactForm">
+          <div class="form-field">
+            <label>你的名字 / Name</label>
+            <input type="text" required />
+            <span class="field-bar"></span>
+          </div>
+          <div class="form-field">
+            <label>邮箱 / Email</label>
+            <input type="email" required />
+            <span class="field-bar"></span>
+          </div>
+          <div class="form-field">
+            <label>想说的话 / Message</label>
+            <textarea rows="4" required></textarea>
+            <span class="field-bar"></span>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block magnetic" data-magnetic>
+            <span class="btn-text" data-scramble>送出讯息</span>
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="btn-shine"></span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ====== 页脚 ====== -->
+    <footer class="footer">
+      <div class="foot-left">
+        <span class="logo-mark">◆</span>
+        <span>XINGHE © 2026 · Made with curiosity</span>
+      </div>
+      <div class="foot-right">
+        <a href="#home" class="magnetic" data-magnetic data-scramble>回到顶部 ↑</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <script src="fx-nebula.js"></script>
+  <script src="script.js"></script>
+  <script src="fx-cursor.js"></script>
+  <script src="fx-scroll.js"></script>
+  <script src="fx-decor.js"></script>
+</body>
+</html>

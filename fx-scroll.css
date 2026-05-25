@@ -1,0 +1,225 @@
+/* ============================================================
+   fx-scroll.css  ·  滚动驱动的电影感动画
+   主题色: 紫 #b18cff · 青 #6ee7ff · 粉 #ff7eb6
+   ============================================================ */
+
+/* -------- 全局变量 -------- */
+:root {
+  --fx-purple: #b18cff;
+  --fx-cyan:   #6ee7ff;
+  --fx-pink:   #ff7eb6;
+  --fx-ease:   cubic-bezier(.2,.7,.2,1);
+}
+
+/* 让所有视差元素与 hero 内容获得 GPU 加速 */
+[data-fx-parallax],
+.hero-content,
+.hero-bg-text,
+.aurora-blob,
+.section-num,
+.work-card {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ============================================================
+   1) Hero 缩放渐隐：hero-content 自身用 CSS var 控制
+   ============================================================ */
+.hero {
+  /* 在 hero 内部把 hero-content 的 transform / opacity 交给 JS */
+}
+.hero .hero-content {
+  transform-origin: 50% 40%;
+  transition: none;
+}
+
+/* ============================================================
+   2) Section Header 钉住效果
+   ============================================================ */
+.section-header {
+  position: relative;
+  /* 由 JS 在合适时机给它加 .is-pinned，CSS 这边只做表现 */
+  transition: transform .35s var(--fx-ease),
+              opacity   .35s var(--fx-ease);
+  z-index: 5;
+}
+
+.section-header.is-pinned {
+  position: sticky;
+  top: 12px;
+  /* 微缩 + 淡化 */
+  --fx-pin-progress: 0;          /* 0~1 由 JS 写入 */
+  transform: scale(calc(1 - 0.18 * var(--fx-pin-progress)));
+  opacity: calc(1 - 0.45 * var(--fx-pin-progress));
+  filter: blur(calc(var(--fx-pin-progress) * 0.4px));
+}
+
+/* 标题里的 section-num 反向小幅位移 (由 JS 写 --fx-num-shift) */
+.section-num {
+  display: inline-block;
+  transform: translate3d(calc(var(--fx-num-shift, 0) * -1px), 0, 0);
+}
+
+/* ============================================================
+   3) 多层视差容器 (JS 直接写 transform，不需要额外 CSS)
+   ============================================================ */
+.hero-bg-text {
+  will-change: transform, opacity;
+}
+
+/* ============================================================
+   4) 滚动进度环 (右下角)
+   ============================================================ */
+.fx-scroll-ring {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  width: 64px;
+  height: 64px;
+  z-index: 99;
+  pointer-events: auto;
+  cursor: pointer;
+  opacity: 0;
+  transform: translate3d(0, 16px, 0) scale(.85);
+  transition: opacity .5s var(--fx-ease),
+              transform .6s var(--fx-ease);
+}
+.fx-scroll-ring.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+.fx-scroll-ring:hover {
+  transform: translate3d(0, -2px, 0) scale(1.05);
+}
+
+.fx-scroll-ring svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 0 14px rgba(177, 140, 255, .35));
+}
+
+.fx-ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, .08);
+  stroke-width: 3;
+}
+
+.fx-ring-bar {
+  fill: none;
+  stroke: url(#fxRingGradient);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 176;       /* 2 * PI * 28 ≈ 176 */
+  stroke-dashoffset: 176;
+  transition: stroke-dashoffset .12s linear;
+}
+
+.fx-ring-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(110, 231, 255, .4);
+  pointer-events: none;
+  user-select: none;
+}
+.fx-ring-center b {
+  font-weight: 400;
+}
+.fx-ring-center i {
+  font-style: normal;
+  opacity: .55;
+  margin-left: 1px;
+  font-size: 9px;
+}
+
+/* ============================================================
+   5) 章节切换闪光 (屏幕底部彩色横线)
+   ============================================================ */
+.fx-section-flash {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  z-index: 98;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--fx-cyan)   18%,
+    var(--fx-purple) 50%,
+    var(--fx-pink)   82%,
+    transparent 100%);
+  opacity: 0;
+  transform: scaleX(.2);
+  transform-origin: 50% 50%;
+  filter: blur(.5px) drop-shadow(0 0 12px var(--fx-purple));
+}
+.fx-section-flash.is-on {
+  animation: fxFlash .55s var(--fx-ease) forwards;
+}
+@keyframes fxFlash {
+  0%   { opacity: 0;   transform: scaleX(.2); height: 2px; }
+  18%  { opacity: 1;   transform: scaleX(1);  height: 3px; }
+  100% { opacity: 0;   transform: scaleX(1);  height: 2px; }
+}
+
+/* ============================================================
+   6) 作品卡入场视差 — work-card 进入视口的初始与就位状态
+   ============================================================ */
+.work-card {
+  /* 初始 — 由 JS 在 .fx-card-ready 准备阶段加 */
+  opacity: 1;
+  transform: none;
+  filter: none;
+  transition:
+    opacity .9s var(--fx-ease),
+    transform .9s var(--fx-ease),
+    filter .9s var(--fx-ease);
+}
+.work-card.fx-card-init {
+  opacity: 0;
+  transform: translate3d(0, 60px, 0) rotate(-3deg) scale(.96);
+  filter: blur(8px);
+}
+.work-card.fx-card-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  filter: blur(0);
+}
+
+/* ============================================================
+   尊重用户偏好：减弱动画
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .work-card,
+  .section-header,
+  .fx-scroll-ring,
+  .fx-section-flash {
+    transition: none !important;
+    animation: none !important;
+  }
+  .work-card.fx-card-init {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* 小屏幕 — 进度环缩小、闪光更细 */
+@media (max-width: 640px) {
+  .fx-scroll-ring {
+    width: 52px;
+    height: 52px;
+    right: 16px;
+    bottom: 16px;
+  }
+  .fx-ring-center { font-size: 10px; }
+}
