@@ -1,0 +1,698 @@
+/* ============================================================
+   fx-extra.css · 星河 v3 — 新增内容 & 动画
+   复用 styles.css 的设计令牌：--accent / --accent-2/3/4 /
+   --ink / --ink-soft / --ink-dim / --glass-bg / --glass-bd /
+   --line / --ease-out / --easing
+   ============================================================ */
+
+/* =========================================================
+   0. 通用揭示动效（滚动入场）
+   ========================================================= */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(38px);
+  filter: blur(6px);
+  transition:
+    opacity .9s var(--ease-out),
+    transform .9s var(--ease-out),
+    filter .9s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * .08s);
+}
+[data-reveal="left"]  { transform: translateX(-46px); }
+[data-reveal="right"] { transform: translateX(46px); }
+[data-reveal="scale"] { transform: translateY(30px) scale(.94); }
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+/* =========================================================
+   1. 流星层
+   ========================================================= */
+.meteor-field {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.meteor {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 6px 1px rgba(255, 255, 255, .8);
+  opacity: 0;
+}
+.meteor::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 120px;
+  height: 1px;
+  transform: translateY(-50%);
+  background: linear-gradient(90deg, rgba(177, 140, 255, 0), var(--accent-2), #fff);
+}
+@keyframes meteorFall {
+  0%   { opacity: 0; transform: translate3d(0, 0, 0) rotate(var(--ang, 35deg)) scaleX(.4); }
+  12%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--mx, -480px), var(--my, 340px), 0) rotate(var(--ang, 35deg)) scaleX(1); }
+}
+.meteor.run { animation: meteorFall var(--dur, 1.5s) cubic-bezier(.4, 0, .7, 1) forwards; }
+
+/* =========================================================
+   2. Hero 快速标签条
+   ========================================================= */
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -52px 0 44px;
+}
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 15px;
+  border: 1px solid var(--glass-bd);
+  border-radius: 999px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  letter-spacing: .06em;
+  color: var(--ink-soft);
+  transition: transform .35s var(--ease-out), border-color .35s, color .35s, background .35s;
+}
+.hero-chip i { color: var(--accent); font-style: normal; font-size: 9px; }
+.hero-chip:hover {
+  transform: translateY(-3px);
+  border-color: rgba(177, 140, 255, .5);
+  color: var(--ink);
+  background: rgba(177, 140, 255, .08);
+}
+
+/* =========================================================
+   3. 信条 / Manifesto
+   ========================================================= */
+.manifesto {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 48px;
+  align-items: start;
+  padding-top: 56px;
+  border-top: 1px solid var(--line);
+}
+.manifesto-kicker {
+  display: inline-block;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  letter-spacing: .25em;
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+.manifesto-title {
+  font-family: "Noto Serif SC", serif;
+  font-weight: 900;
+  font-size: clamp(28px, 3.4vw, 48px);
+  line-height: 1.2;
+  letter-spacing: -.02em;
+}
+.manifesto-title em {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-weight: 600;
+  background: linear-gradient(120deg, var(--accent), var(--accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.manifesto-sub {
+  margin-top: 14px;
+  color: var(--ink-soft);
+  font-family: "Noto Serif SC", serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.manifesto-list { display: flex; flex-direction: column; gap: 4px; }
+.manifesto-list li {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  align-items: baseline;
+  padding: 20px 8px;
+  border-bottom: 1px solid var(--line);
+  transition: padding-left .4s var(--ease-out), background .4s;
+}
+.manifesto-list li:hover {
+  padding-left: 18px;
+  background: linear-gradient(90deg, rgba(177, 140, 255, .06), transparent);
+}
+.manifesto-list .m-idx {
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+  color: var(--accent);
+  opacity: .7;
+}
+.manifesto-list b {
+  display: block;
+  font-family: "Noto Serif SC", serif;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.manifesto-list span:not(.m-idx) {
+  display: block;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* =========================================================
+   4. JOURNEY · 时间线
+   ========================================================= */
+.timeline { position: relative; padding: 12px 0; }
+.tl-line {
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, .07);
+  overflow: hidden;
+}
+.tl-line-fill {
+  position: absolute;
+  left: 0; top: 0; right: 0;
+  height: 0%;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2), var(--accent-3));
+  box-shadow: 0 0 14px var(--accent);
+  transition: height .25s linear;
+}
+.tl-item {
+  position: relative;
+  width: 50%;
+  padding: 22px 48px;
+  box-sizing: border-box;
+}
+/* .tl-line 是 .timeline 的第 1 个子元素，故 .tl-item 从第 2 个起：
+   even(2,4,6)=左列、odd(3,5)=右列，与各卡片的 data-reveal 方向一致 */
+.tl-item:nth-child(even) { left: 0;   text-align: right; }
+.tl-item:nth-child(odd)  { left: 50%; text-align: left; }
+
+.tl-node {
+  position: absolute;
+  top: 34px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: var(--bg-0, #08080f);
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 0 4px rgba(177, 140, 255, .12);
+  z-index: 3;
+}
+.tl-item:nth-child(even) .tl-node { right: -8px; }
+.tl-item:nth-child(odd)  .tl-node { left: -8px; }
+.tl-node.now {
+  background: var(--accent);
+  animation: tlNowPulse 2s ease-out infinite;
+}
+@keyframes tlNowPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(177, 140, 255, .6); }
+  70%  { box-shadow: 0 0 0 14px rgba(177, 140, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(177, 140, 255, 0); }
+}
+
+.tl-card {
+  display: inline-block;
+  text-align: left;
+  padding: 26px 30px;
+  max-width: 440px;
+  transition: transform .4s var(--ease-out), border-color .4s;
+}
+.tl-card:hover { transform: translateY(-5px); border-color: rgba(177, 140, 255, .4); }
+.tl-card.is-now { border-color: rgba(177, 140, 255, .45); }
+.tl-year {
+  display: inline-block;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  letter-spacing: .18em;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.tl-card h3 {
+  font-family: "Noto Serif SC", serif;
+  font-weight: 600;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+.tl-card p { color: var(--ink-soft); font-size: 14.5px; line-height: 1.8; }
+.tl-card code {
+  font-family: "Space Mono", monospace;
+  font-size: .86em;
+  color: var(--accent-2);
+  background: rgba(110, 231, 255, .08);
+  padding: 1px 6px;
+  border-radius: 5px;
+}
+
+/* =========================================================
+   5. 科技跑马灯
+   ========================================================= */
+.tech-marquee {
+  margin-top: 60px;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+.tech-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 26px;
+  animation: techScroll 38s linear infinite;
+}
+.tech-track:hover { animation-play-state: paused; }
+.tech-track span {
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: -.01em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(244, 244, 255, .35);
+  transition: color .3s, -webkit-text-stroke .3s;
+}
+.tech-track span:hover { color: var(--ink); -webkit-text-stroke: 0; }
+.tech-track i { color: var(--accent); font-style: normal; font-size: 16px; opacity: .6; }
+@keyframes techScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* =========================================================
+   6. WORKS — 精选大卡 + 更多按钮
+   ========================================================= */
+.work-featured {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 0;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid var(--glass-bd);
+  background: var(--glass-bg);
+  margin-bottom: 30px;
+  transition: border-color .45s, transform .25s var(--ease-out);
+}
+.work-featured:hover { border-color: rgba(177, 140, 255, .5); }
+.wf-visual {
+  position: relative;
+  min-height: 340px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 28% 30%, rgba(177, 140, 255, .85) 0%, transparent 48%),
+    radial-gradient(circle at 72% 74%, rgba(110, 231, 255, .7) 0%, transparent 48%),
+    linear-gradient(135deg, #241152, #0a0a16);
+}
+.wf-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .06) 1px, transparent 1px);
+  background-size: 38px 38px;
+  mask-image: radial-gradient(ellipse at center, #000 20%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse at center, #000 20%, transparent 72%);
+}
+.wf-orb {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 30%, rgba(255, 255, 255, .85), transparent 64%);
+  transform: translate(-50%, -50%);
+  filter: blur(3px);
+  mix-blend-mode: screen;
+  animation: orbFloat 9s ease-in-out infinite;
+}
+.wf-orb.o2 {
+  width: 90px; height: 90px;
+  background: radial-gradient(circle at 40% 40%, var(--accent-3), transparent 66%);
+  animation: wfOrbit 14s linear infinite;
+}
+@keyframes wfOrbit {
+  from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
+}
+.wf-info {
+  padding: 46px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.wf-badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--accent-4);
+  padding: 5px 12px;
+  border: 1px solid rgba(255, 213, 110, .35);
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+.wf-info .work-year { display: block; }
+.wf-info h3 {
+  font-family: "Noto Serif SC", serif;
+  font-weight: 900;
+  font-size: clamp(28px, 3.2vw, 40px);
+  margin: 6px 0 14px;
+}
+.wf-info > p {
+  color: var(--ink-soft);
+  font-size: 15px;
+  line-height: 1.85;
+  margin-bottom: 24px;
+}
+.wf-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 26px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 22px;
+}
+.wf-meta div { display: flex; flex-direction: column; gap: 5px; }
+.wf-meta span {
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  letter-spacing: .18em;
+  color: var(--ink-dim);
+}
+.wf-meta b { font-size: 13.5px; font-weight: 600; color: var(--ink); }
+.wf-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  align-self: flex-start;
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+  letter-spacing: .08em;
+  color: var(--accent);
+  transition: gap .3s var(--ease-out), color .3s;
+}
+.wf-cta svg { width: 16px; height: 16px; transition: transform .3s var(--ease-out); }
+.work-featured:hover .wf-cta { gap: 14px; color: var(--accent-2); }
+.work-featured:hover .wf-cta svg { transform: translate(3px, -3px); }
+
+.works-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 36px;
+  padding: 14px 30px;
+  border: 1px solid var(--glass-bd);
+  border-radius: 999px;
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+  letter-spacing: .1em;
+  color: var(--ink);
+  transition: border-color .35s, background .35s, transform .35s var(--ease-out);
+  will-change: transform;
+}
+.works-more svg { width: 16px; height: 16px; transition: transform .3s var(--ease-out); }
+.works-more:hover { border-color: rgba(177, 140, 255, .55); background: rgba(177, 140, 255, .08); }
+.works-more:hover svg { transform: translateX(4px); }
+
+/* =========================================================
+   7. NOW · 此刻
+   ========================================================= */
+.now-bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 16px 26px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  font-family: "Space Mono", monospace;
+  font-size: 13px;
+}
+.now-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-3);
+  letter-spacing: .16em;
+  font-size: 12px;
+}
+.now-status {
+  flex: 1;
+  color: var(--ink-soft);
+  font-family: "Noto Serif SC", serif;
+  font-weight: 300;
+  letter-spacing: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.now-clock { color: var(--accent-2); letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+
+.now-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+.now-card {
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 210px;
+  transition: transform .4s var(--ease-out), border-color .4s;
+}
+.now-card:hover { transform: translateY(-6px); border-color: rgba(177, 140, 255, .4); }
+.now-head { display: flex; align-items: center; gap: 12px; }
+.now-ico {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  border-radius: 11px;
+  background: rgba(177, 140, 255, .12);
+  border: 1px solid rgba(177, 140, 255, .25);
+  color: var(--accent);
+  font-size: 17px;
+}
+.now-tag {
+  font-family: "Space Mono", monospace;
+  font-size: 11.5px;
+  letter-spacing: .12em;
+  color: var(--ink);
+}
+.now-card > p { color: var(--ink-soft); font-size: 14px; line-height: 1.75; flex: 1; }
+.now-card em { font-family: "Cormorant Garamond", serif; font-style: italic; color: var(--ink); }
+.now-foot {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: var(--ink-dim);
+}
+.dot-pulse.sm { width: 7px; height: 7px; }
+
+.now-progress {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, .08);
+  overflow: hidden;
+}
+.now-progress i {
+  display: block;
+  height: 100%;
+  width: var(--p, 50%);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+/* 均衡器 */
+.now-eq { display: flex; align-items: flex-end; gap: 3px; height: 22px; }
+.now-eq i {
+  width: 4px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  animation: eqBounce 1s ease-in-out infinite;
+}
+.now-eq i:nth-child(1) { height: 40%; animation-delay: -.2s; }
+.now-eq i:nth-child(2) { height: 80%; animation-delay: -.5s; }
+.now-eq i:nth-child(3) { height: 55%; animation-delay: -.1s; }
+.now-eq i:nth-child(4) { height: 95%; animation-delay: -.7s; }
+.now-eq i:nth-child(5) { height: 45%; animation-delay: -.3s; }
+.now-eq i:nth-child(6) { height: 70%; animation-delay: -.6s; }
+.now-eq i:nth-child(7) { height: 35%; animation-delay: -.15s; }
+@keyframes eqBounce {
+  0%, 100% { transform: scaleY(.4); }
+  50%      { transform: scaleY(1); }
+}
+
+/* =========================================================
+   8. CONTACT — 档期徽章 + FAQ
+   ========================================================= */
+.avail-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border: 1px solid rgba(74, 222, 128, .3);
+  border-radius: 999px;
+  background: rgba(74, 222, 128, .06);
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  letter-spacing: .06em;
+  color: var(--ink-soft);
+  margin-bottom: 34px;
+}
+.avail-badge b { color: var(--ink); font-weight: 600; }
+
+.faq {
+  margin-top: 38px;
+  padding-top: 30px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+}
+.faq-item { border-bottom: 1px solid var(--line); }
+.faq-q {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 2px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: "Noto Serif SC", serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--ink);
+  transition: color .3s;
+}
+.faq-q:hover { color: var(--accent); }
+.faq-mark {
+  font-family: "Space Mono", monospace;
+  font-size: 20px;
+  color: var(--accent);
+  transition: transform .35s var(--ease-out);
+  flex-shrink: 0;
+}
+.faq-item.open .faq-mark { transform: rotate(135deg); }
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height .45s var(--ease-out), opacity .45s, padding .45s;
+  opacity: 0;
+}
+.faq-item.open .faq-a { max-height: 160px; opacity: 1; padding-bottom: 18px; }
+.faq-a p { color: var(--ink-soft); font-size: 14px; line-height: 1.8; }
+
+/* =========================================================
+   9. 页脚（多列）
+   ========================================================= */
+.footer {
+  display: grid !important;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr;
+  gap: 40px;
+  align-items: start !important;
+}
+.foot-col { display: flex; flex-direction: column; gap: 12px; }
+.foot-brand p {
+  color: var(--ink-soft);
+  font-family: "Noto Serif SC", serif;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.7;
+  letter-spacing: 0;
+  max-width: 280px;
+}
+.foot-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
+  font-size: 18px;
+  letter-spacing: .18em;
+  color: var(--ink);
+}
+.foot-copy { color: var(--ink-dim); font-size: 11px; margin-top: 4px; }
+.foot-h {
+  font-family: "Space Mono", monospace;
+  font-size: 11px;
+  letter-spacing: .2em;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.foot-col a { color: var(--ink-soft); transition: color .25s, transform .25s var(--ease-out); width: fit-content; }
+.foot-col a:hover { color: var(--ink); transform: translateX(3px); }
+.foot-coord { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.back-top { margin-top: 8px; color: var(--accent) !important; }
+
+/* =========================================================
+   10. 导航：容纳 7 项的响应式收窄
+   ========================================================= */
+@media (max-width: 1120px) {
+  .nav-bar  { gap: 20px; }
+  .nav-time { display: none; }
+  .nav-link { padding: 6px 10px; font-size: 12px; }
+}
+
+/* =========================================================
+   11. 响应式
+   ========================================================= */
+@media (max-width: 1024px) {
+  .manifesto    { grid-template-columns: 1fr; gap: 28px; }
+  .work-featured { grid-template-columns: 1fr; }
+  .wf-visual    { min-height: 220px; }
+  .now-grid     { grid-template-columns: 1fr 1fr; }
+  .footer       { grid-template-columns: 1fr 1fr; }
+
+  /* 时间线改为单侧 */
+  .tl-line { left: 16px; }
+  .tl-item,
+  .tl-item:nth-child(odd),
+  .tl-item:nth-child(even) {
+    width: 100%;
+    left: 0;
+    text-align: left;
+    padding: 18px 0 18px 48px;
+  }
+  .tl-item:nth-child(odd) .tl-node,
+  .tl-item:nth-child(even) .tl-node { left: 9px; right: auto; }
+  .tl-card { max-width: 100%; }
+}
+@media (max-width: 720px) {
+  .hero-chips  { margin: -28px 0 36px; }
+  .now-grid    { grid-template-columns: 1fr; }
+  .footer      { grid-template-columns: 1fr; gap: 28px; text-align: left; }
+  .foot-end    { align-items: flex-start; }
+  .now-bar     { flex-wrap: wrap; gap: 10px; }
+  .now-status  { order: 3; flex-basis: 100%; white-space: normal; }
+  .wf-info     { padding: 32px 26px; }
+  .manifesto-list li { grid-template-columns: 40px 1fr; gap: 12px; }
+}
+
+/* =========================================================
+   12. 降低动画偏好
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1 !important; transform: none !important; filter: none !important; }
+  .meteor-field { display: none; }
+  .tech-track, .now-eq i, .tl-node.now { animation: none !important; }
+}

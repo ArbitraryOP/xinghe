@@ -6,6 +6,7 @@
   <title>星河 · Personal Universe</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="fx-scroll.css" />
+  <link rel="stylesheet" href="fx-extra.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&family=Noto+Serif+SC:wght@200;300;600;900&family=Space+Mono&family=Cormorant+Garamond:ital,wght@1,300;1,600&display=swap" rel="stylesheet" />
 </head>
 <body>
@@ -40,6 +41,9 @@
   </div>
   <canvas id="particleCanvas"></canvas>
 
+  <!-- 流星层（fx-extra.js 注入流星） -->
+  <div class="meteor-field" id="meteorField" aria-hidden="true"></div>
+
   <!-- 鼠标光晕 -->
   <div class="mouse-glow" id="mouseGlow"></div>
 
@@ -58,8 +62,10 @@
     <ul class="nav-links">
       <li><a href="#home"    class="nav-link active" data-scramble>Home</a></li>
       <li><a href="#about"   class="nav-link" data-scramble>About</a></li>
+      <li><a href="#journey" class="nav-link" data-scramble>Journey</a></li>
       <li><a href="#skills"  class="nav-link" data-scramble>Skills</a></li>
       <li><a href="#works"   class="nav-link" data-scramble>Works</a></li>
+      <li><a href="#now"     class="nav-link" data-scramble>Now</a></li>
       <li><a href="#contact" class="nav-link" data-scramble>Contact</a></li>
     </ul>
     <div class="nav-time" id="navTime">00:00:00</div>
@@ -71,9 +77,11 @@
     <ul class="indi-list">
       <li data-target="#home"><span class="indi-num">01</span><span class="indi-name">首页 · Home</span><span class="indi-dot"></span></li>
       <li data-target="#about"><span class="indi-num">02</span><span class="indi-name">关于 · About</span><span class="indi-dot"></span></li>
-      <li data-target="#skills"><span class="indi-num">03</span><span class="indi-name">技能 · Skills</span><span class="indi-dot"></span></li>
-      <li data-target="#works"><span class="indi-num">04</span><span class="indi-name">作品 · Works</span><span class="indi-dot"></span></li>
-      <li data-target="#contact"><span class="indi-num">05</span><span class="indi-name">联络 · Contact</span><span class="indi-dot"></span></li>
+      <li data-target="#journey"><span class="indi-num">03</span><span class="indi-name">历程 · Journey</span><span class="indi-dot"></span></li>
+      <li data-target="#skills"><span class="indi-num">04</span><span class="indi-name">技能 · Skills</span><span class="indi-dot"></span></li>
+      <li data-target="#works"><span class="indi-num">05</span><span class="indi-name">作品 · Works</span><span class="indi-dot"></span></li>
+      <li data-target="#now"><span class="indi-num">06</span><span class="indi-name">此刻 · Now</span><span class="indi-dot"></span></li>
+      <li data-target="#contact"><span class="indi-num">07</span><span class="indi-name">联络 · Contact</span><span class="indi-dot"></span></li>
     </ul>
   </aside>
 
@@ -144,6 +152,14 @@
           </a>
         </div>
 
+        <!-- 快速标签条 -->
+        <div class="hero-chips fade-up delay-4">
+          <span class="hero-chip"><i>✦</i> 前端工程</span>
+          <span class="hero-chip"><i>✦</i> 创意编程</span>
+          <span class="hero-chip"><i>✦</i> 动效设计</span>
+          <span class="hero-chip"><i>✦</i> WebGL / Shader</span>
+        </div>
+
         <div class="scroll-hint fade-up delay-5">
           <div class="scroll-bar"><div class="scroll-bar-inner"></div></div>
           <span>向下滚动 · SCROLL</span>
@@ -162,7 +178,7 @@
       <div class="hero-meta">
         <div class="hero-meta-row"><span>LAT</span><span>31°14′N</span></div>
         <div class="hero-meta-row"><span>LON</span><span>121°28′E</span></div>
-        <div class="hero-meta-row"><span>VER</span><span>v2.6 · 2026</span></div>
+        <div class="hero-meta-row"><span>VER</span><span>v3.0 · 2026</span></div>
       </div>
     </section>
 
@@ -203,9 +219,13 @@
             白天我是工程师，深夜我是写诗的人。<br />
             喜欢将看似无关的概念缝合成新的东西——<br />
             一段会呼吸的网页，一只会哼歌的程序。</p>
+            <p>过去七年里，我在浏览器这块小小的画布上反复试探：
+            从一个会发光的按钮，到一整片随鼠标流动的星云。
+            我相信工具应该有温度，界面应该有呼吸，
+            而每一次刷新，都值得是一场小小的日出。</p>
 
             <div class="meta-list">
-              <div class="meta-row"><span class="meta-key">位置</span><span class="meta-val">银河系 · 第三悬臂</span></div>
+              <div class="meta-row"><span class="meta-key">位置</span><span class="meta-val">银河系 · 第三悬臂 · 上海</span></div>
               <div class="meta-row"><span class="meta-key">职业</span><span class="meta-val">前端工程师 / 创意开发者</span></div>
               <div class="meta-row"><span class="meta-key">语言</span><span class="meta-val">中文 / English / JavaScript</span></div>
               <div class="meta-row"><span class="meta-key">爱好</span><span class="meta-val">天文 · 摄影 · 茶 · 老电影</span></div>
@@ -232,12 +252,87 @@
           </div>
         </div>
       </div>
+
+      <!-- 信条 / Manifesto -->
+      <div class="manifesto">
+        <div class="manifesto-aside">
+          <span class="manifesto-kicker" data-scramble>// 我的信条</span>
+          <h3 class="manifesto-title">五条<em>不成文</em>的规矩</h3>
+          <p class="manifesto-sub">它们没有写进任何文档，却写进了每一行代码。</p>
+        </div>
+        <ol class="manifesto-list">
+          <li data-reveal style="--i:0"><span class="m-idx">01</span><div><b>让界面会呼吸</b><span>动效服务于感受，而不是炫技。</span></div></li>
+          <li data-reveal style="--i:1"><span class="m-idx">02</span><div><b>把约束当作灵感</b><span>限制常常通往更优雅的解法。</span></div></li>
+          <li data-reveal style="--i:2"><span class="m-idx">03</span><div><b>先取悦人，再取悦机器</b><span>体验排第一，性能紧随其后。</span></div></li>
+          <li data-reveal style="--i:3"><span class="m-idx">04</span><div><b>慢即是快</b><span>想清楚，再动手；返工才是最慢的。</span></div></li>
+          <li data-reveal style="--i:4"><span class="m-idx">05</span><div><b>保持好奇</b><span>对每一个「为什么」都认真对待。</span></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ====== JOURNEY · 历程 ====== -->
+    <section id="journey" class="journey">
+      <div class="section-header">
+        <span class="section-num" data-scramble>02 / 历程</span>
+        <h2 class="section-title" data-split-words>
+          一条<em>发光</em>的轨迹
+        </h2>
+      </div>
+
+      <div class="timeline" id="timeline">
+        <div class="tl-line"><div class="tl-line-fill" id="tlFill"></div></div>
+
+        <div class="tl-item" data-reveal="left">
+          <div class="tl-node"></div>
+          <div class="tl-card glass spotlight">
+            <span class="tl-year">2018</span>
+            <h3>初遇 · First Light</h3>
+            <p>用记事本写下第一个 <code>&lt;button&gt;</code>，看着它在浏览器里亮起来的那个瞬间，决定了往后所有的夜晚。</p>
+          </div>
+        </div>
+
+        <div class="tl-item" data-reveal="right">
+          <div class="tl-node"></div>
+          <div class="tl-card glass spotlight">
+            <span class="tl-year">2020</span>
+            <h3>入轨 · Into Orbit</h3>
+            <p>系统地学习前端工程——组件、状态、构建管线。学会了如何让庞杂的界面也保持秩序与呼吸。</p>
+          </div>
+        </div>
+
+        <div class="tl-item" data-reveal="left">
+          <div class="tl-node"></div>
+          <div class="tl-card glass spotlight">
+            <span class="tl-year">2022</span>
+            <h3>极光 · Aurora</h3>
+            <p>第一次用 GLSL 在屏幕上画出一片流动的星云，忽然明白：代码不只是工具，也可以是颜料，也可以是诗。</p>
+          </div>
+        </div>
+
+        <div class="tl-item" data-reveal="right">
+          <div class="tl-node"></div>
+          <div class="tl-card glass spotlight">
+            <span class="tl-year">2024</span>
+            <h3>独航 · Solo Voyage</h3>
+            <p>开始独立创作，把脑海里那些奇怪的念头，一个一个变成真实可触、能交互的网页与小装置。</p>
+          </div>
+        </div>
+
+        <div class="tl-item" data-reveal="left">
+          <div class="tl-node now"></div>
+          <div class="tl-card glass spotlight is-now">
+            <span class="tl-year">2026 · 此刻</span>
+            <h3>现在 · Now</h3>
+            <p>站在代码、设计与想象的交界处，继续搭建会发光、会呼吸的小宇宙——比如你眼前的这一个。</p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ====== SKILLS ====== -->
     <section id="skills" class="skills">
       <div class="section-header">
-        <span class="section-num" data-scramble>02 / 能力</span>
+        <span class="section-num" data-scramble>03 / 能力</span>
         <h2 class="section-title" data-split-words>
           我的<em>工具箱</em>
         </h2>
@@ -287,33 +382,60 @@
             <span data-scramble>p5.js</span><span data-scramble>Shader</span><span data-scramble>Generative</span><span data-scramble>TouchDesigner</span>
           </div>
         </div>
+
+        <div class="skill-row glass spotlight">
+          <div class="skill-head">
+            <span class="skill-name">工具与协作 · Tooling</span>
+            <span class="skill-percent" data-target="85">0%</span>
+          </div>
+          <div class="skill-bar"><div class="skill-fill" data-width="85"></div></div>
+          <div class="skill-tags">
+            <span data-scramble>Git</span><span data-scramble>Vite</span><span data-scramble>Docker</span><span data-scramble>Linux</span><span data-scramble>Notion</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 科技跑马灯 -->
+      <div class="tech-marquee">
+        <div class="tech-track">
+          <span>JavaScript</span><i>/</i><span>TypeScript</span><i>/</i><span>React</span><i>/</i><span>Vue</span><i>/</i><span>Three.js</span><i>/</i><span>WebGL</span><i>/</i><span>GLSL</span><i>/</i><span>GSAP</span><i>/</i><span>Node.js</span><i>/</i><span>Python</span><i>/</i><span>Canvas</span><i>/</i><span>Figma</span><i>/</i>
+          <span>JavaScript</span><i>/</i><span>TypeScript</span><i>/</i><span>React</span><i>/</i><span>Vue</span><i>/</i><span>Three.js</span><i>/</i><span>WebGL</span><i>/</i><span>GLSL</span><i>/</i><span>GSAP</span><i>/</i><span>Node.js</span><i>/</i><span>Python</span><i>/</i><span>Canvas</span><i>/</i><span>Figma</span><i>/</i>
+        </div>
       </div>
     </section>
 
     <!-- ====== WORKS ====== -->
     <section id="works" class="works">
       <div class="section-header">
-        <span class="section-num" data-scramble>03 / 作品</span>
+        <span class="section-num" data-scramble>04 / 作品</span>
         <h2 class="section-title" data-split-words>
           最近的<em>造物</em>
         </h2>
       </div>
 
-      <div class="works-grid">
-        <a href="#" class="work-card tilt-card spotlight">
-          <div class="work-visual w1">
-            <div class="work-glow"></div>
-            <div class="work-orb"></div>
+      <!-- 精选大卡 -->
+      <a href="https://github.com/ArbitraryOP" target="_blank" rel="noopener" class="work-featured tilt-card spotlight">
+        <div class="wf-visual">
+          <div class="wf-orb"></div>
+          <div class="wf-orb o2"></div>
+          <div class="wf-grid"></div>
+        </div>
+        <div class="wf-info">
+          <span class="wf-badge">★ 精选 · Featured</span>
+          <span class="work-year">2026 · 进行中</span>
+          <h3 data-scramble>星图 · Stellaris</h3>
+          <p>一个交互式三维星图：把你在 GitHub 上的每一次提交，绘制成夜空里独一无二的星座，
+          可旋转、可缩放、可分享。它是这整个「星河」宇宙的起点，也是我目前投入最多的造物。</p>
+          <div class="wf-meta">
+            <div><span>角色</span><b>设计 + 全栈开发</b></div>
+            <div><span>技术</span><b>Three.js · WebGL · Next.js</b></div>
+            <div><span>状态</span><b>公开开发中</b></div>
           </div>
-          <div class="work-info">
-            <span class="work-year">2026</span>
-            <h3 data-scramble>星图 · Stellaris</h3>
-            <p>一个交互式三维星图，把你写的代码可视化为星座。</p>
-            <div class="work-tags"><span>Three.js</span><span>WebGL</span></div>
-            <span class="work-arrow">→</span>
-          </div>
-        </a>
+          <span class="wf-cta">前往 GitHub 查看 <svg viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+        </div>
+      </a>
 
+      <div class="works-grid">
         <a href="#" class="work-card tilt-card spotlight">
           <div class="work-visual w2">
             <div class="work-glow"></div>
@@ -322,8 +444,8 @@
           <div class="work-info">
             <span class="work-year">2025</span>
             <h3 data-scramble>纸短 · Letterly</h3>
-            <p>一封写给陌生人的信，匿名漂流穿过整个互联网。</p>
-            <div class="work-tags"><span>Next.js</span><span>Edge</span></div>
+            <p>一封写给陌生人的信，匿名漂流穿过整个互联网，被某个同样深夜未眠的人拾起、回信。</p>
+            <div class="work-tags"><span>Next.js</span><span>Edge</span><span>KV</span></div>
             <span class="work-arrow">→</span>
           </div>
         </a>
@@ -336,8 +458,22 @@
           <div class="work-info">
             <span class="work-year">2025</span>
             <h3 data-scramble>呼吸 · Breathe</h3>
-            <p>跟随屏幕节奏吸气、停顿、呼出 —— 一个会冥想的网页。</p>
-            <div class="work-tags"><span>Canvas</span><span>Audio</span></div>
+            <p>跟随屏幕的节奏吸气、停顿、呼出——一个会冥想的网页，用声音与光圈陪你慢下来四分钟。</p>
+            <div class="work-tags"><span>Canvas</span><span>Web Audio</span></div>
+            <span class="work-arrow">→</span>
+          </div>
+        </a>
+
+        <a href="#" class="work-card tilt-card spotlight">
+          <div class="work-visual w1">
+            <div class="work-glow"></div>
+            <div class="work-orb"></div>
+          </div>
+          <div class="work-info">
+            <span class="work-year">2024</span>
+            <h3 data-scramble>第六感 · Sixth</h3>
+            <p>用手机陀螺仪在空气中「画画」的小型实验，把每一次挥手都留成一道发光的轨迹。</p>
+            <div class="work-tags"><span>PWA</span><span>Sensor</span></div>
             <span class="work-arrow">→</span>
           </div>
         </a>
@@ -349,12 +485,60 @@
           </div>
           <div class="work-info">
             <span class="work-year">2024</span>
-            <h3 data-scramble>第六感 · Sixth</h3>
-            <p>用手机陀螺仪在空气中"画画"的小型实验。</p>
-            <div class="work-tags"><span>PWA</span><span>Sensor</span></div>
+            <h3 data-scramble>潮汐 · Tide</h3>
+            <p>跟随真实月相变化的动态壁纸生成器，让桌面随着天上的月亮一起圆缺、涨落。</p>
+            <div class="work-tags"><span>Canvas</span><span>Astronomy</span></div>
             <span class="work-arrow">→</span>
           </div>
         </a>
+      </div>
+
+      <a href="https://github.com/ArbitraryOP" target="_blank" rel="noopener" class="works-more magnetic" data-magnetic>
+        <span data-scramble>在 GitHub 上看更多</span>
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </a>
+    </section>
+
+    <!-- ====== NOW · 此刻 ====== -->
+    <section id="now" class="now">
+      <div class="section-header">
+        <span class="section-num" data-scramble>05 / 此刻</span>
+        <h2 class="section-title" data-split-words>
+          我<em>正在</em>做什么
+        </h2>
+      </div>
+
+      <div class="now-bar glass">
+        <span class="now-live"><span class="status-dot"></span> LIVE</span>
+        <span class="now-status" id="nowStatus">正在把一段噪声函数调成星云的样子…</span>
+        <span class="now-clock" id="nowClock">--:--:--</span>
+      </div>
+
+      <div class="now-grid">
+        <div class="now-card glass spotlight" data-reveal="scale" style="--i:0">
+          <div class="now-head"><span class="now-ico">⚙</span><span class="now-tag">构建中 · Building</span></div>
+          <p>『星河』的下一次日出——把 GitHub 的提交记录绘制成可旋转的星座。</p>
+          <div class="now-foot"><span class="dot-pulse sm"></span> 每个夜晚都在长大</div>
+        </div>
+
+        <div class="now-card glass spotlight" data-reveal="scale" style="--i:1">
+          <div class="now-head"><span class="now-ico">❑</span><span class="now-tag">阅读中 · Reading</span></div>
+          <p>《哥德尔、艾舍尔、巴赫》· 侯世达<br />《看不见的城市》· 卡尔维诺</p>
+          <div class="now-foot"><span class="now-progress"><i style="--p:62%"></i></span> 62% / 38%</div>
+        </div>
+
+        <div class="now-card glass spotlight" data-reveal="scale" style="--i:2">
+          <div class="now-head"><span class="now-ico">♫</span><span class="now-tag">聆听中 · Listening</span></div>
+          <p>坂本龙一 — <em>async</em></p>
+          <div class="now-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="now-foot" id="nowTrack">02:14 · 循环单曲</div>
+        </div>
+
+        <div class="now-card glass spotlight" data-reveal="scale" style="--i:3">
+          <div class="now-head"><span class="now-ico">✶</span><span class="now-tag">学习中 · Learning</span></div>
+          <p>WebGPU 与实时光线步进，<br />以及一点点法语（très lentement）。</p>
+          <div class="now-foot"><span class="dot-pulse sm"></span> 慢慢来，比较快</div>
+        </div>
       </div>
     </section>
 
@@ -379,7 +563,7 @@
     <!-- ====== CONTACT ====== -->
     <section id="contact" class="contact">
       <div class="section-header">
-        <span class="section-num" data-scramble>04 / 联络</span>
+        <span class="section-num" data-scramble>06 / 联络</span>
         <h2 class="section-title" data-split-words>
           写一封<em>信</em>给我
         </h2>
@@ -392,15 +576,36 @@
             或者只是想说一句你好 —— 我就在这里。
           </p>
 
+          <div class="avail-badge">
+            <span class="status-dot"></span>
+            <span>目前档期 · <b>2026 Q3 可接新项目</b></span>
+          </div>
+
           <a href="mailto:hello@xinghe.dev" class="big-mail magnetic" data-magnetic>
             <span class="big-mail-en">hello@xinghe.dev</span>
             <svg viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </a>
 
           <div class="contact-channels">
-            <div><span>GH</span><a href="#" data-scramble>github.com/xinghe</a></div>
+            <div><span>GH</span><a href="https://github.com/ArbitraryOP" target="_blank" rel="noopener" data-scramble>github.com/ArbitraryOP</a></div>
             <div><span>TW</span><a href="#" data-scramble>@xinghe_dev</a></div>
             <div><span>LK</span><a href="#" data-scramble>linkedin.com/in/xinghe</a></div>
+          </div>
+
+          <!-- 常见问答 -->
+          <div class="faq">
+            <div class="faq-item">
+              <button class="faq-q" type="button">你接受合作吗？<span class="faq-mark">+</span></button>
+              <div class="faq-a"><p>接受。尤其欢迎尊重创意、愿意一起把细节打磨到发光的项目。</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q" type="button">通常多久回复？<span class="faq-mark">+</span></button>
+              <div class="faq-a"><p>一般 24 小时内。如果是深夜发来的奇怪点子，回复可能会更快一些。</p></div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-q" type="button">偏好什么技术栈？<span class="faq-mark">+</span></button>
+              <div class="faq-a"><p>视项目而定，但我偏爱任何能让动效顺滑、让界面有呼吸感的组合。</p></div>
+            </div>
           </div>
         </div>
 
@@ -431,12 +636,28 @@
 
     <!-- ====== 页脚 ====== -->
     <footer class="footer">
-      <div class="foot-left">
-        <span class="logo-mark">◆</span>
-        <span>XINGHE © 2026 · Made with curiosity</span>
+      <div class="foot-col foot-brand">
+        <div class="foot-logo"><span class="logo-mark">◆</span> XINGHE</div>
+        <p>在代码、设计与想象的交界处造物。</p>
+        <span class="foot-copy">© 2026 · Made with curiosity</span>
       </div>
-      <div class="foot-right">
-        <a href="#home" class="magnetic" data-magnetic data-scramble>回到顶部 ↑</a>
+      <div class="foot-col">
+        <span class="foot-h">导航</span>
+        <a href="#home" data-scramble>首页</a>
+        <a href="#journey" data-scramble>历程</a>
+        <a href="#works" data-scramble>作品</a>
+        <a href="#now" data-scramble>此刻</a>
+      </div>
+      <div class="foot-col">
+        <span class="foot-h">社交</span>
+        <a href="https://github.com/ArbitraryOP" target="_blank" rel="noopener" data-scramble>GitHub</a>
+        <a href="#" data-scramble>Twitter</a>
+        <a href="mailto:hello@xinghe.dev" data-scramble>Email</a>
+      </div>
+      <div class="foot-col foot-end">
+        <span class="foot-h">坐标</span>
+        <span class="foot-coord">31°14′N · 121°28′E</span>
+        <a href="#home" class="back-top magnetic" data-magnetic data-scramble>回到顶部 ↑</a>
       </div>
     </footer>
 
@@ -447,5 +668,6 @@
   <script src="fx-cursor.js"></script>
   <script src="fx-scroll.js"></script>
   <script src="fx-decor.js"></script>
+  <script src="fx-extra.js"></script>
 </body>
 </html>

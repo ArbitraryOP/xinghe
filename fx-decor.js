@@ -337,7 +337,8 @@
       'text-anchor': 'middle',
       'letter-spacing': '2'
     }, svg);
-    txt.textContent = '§ ' + String(idx).padStart(2, '0') + ' · ' + ['ABOUT', 'SKILLS', 'WORKS', 'QUOTE', 'CONTACT'][Math.min(idx - 1, 4)];
+    var waveLabels = ['ABOUT', 'JOURNEY', 'SKILLS', 'WORKS', 'NOW', 'QUOTE', 'CONTACT'];
+    txt.textContent = '§ ' + String(idx).padStart(2, '0') + ' · ' + waveLabels[Math.min(idx - 1, waveLabels.length - 1)];
 
     return wrap;
   }
