@@ -1487,8 +1487,19 @@ section {
   font-size: 11px;
   letter-spacing: 0.2em;
 }
-.contact-channels a { transition: color .25s; }
+.contact-channels a { position: relative; transition: color .25s; }
+.contact-channels a::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .35s var(--ease-out);
+}
 .contact-channels a:hover { color: var(--ink); }
+.contact-channels a:hover::after { transform: scaleX(1); }
 
 .contact-form {
   padding: 44px;

@@ -10,17 +10,17 @@
    ========================================================= */
 [data-reveal] {
   opacity: 0;
-  transform: translateY(38px);
+  transform: translateY(28px);
   filter: blur(6px);
   transition:
-    opacity .9s var(--ease-out),
-    transform .9s var(--ease-out),
-    filter .9s var(--ease-out);
-  transition-delay: calc(var(--i, 0) * .08s);
+    opacity .7s var(--ease-out),
+    transform .7s var(--ease-out),
+    filter .7s var(--ease-out);
+  transition-delay: calc(var(--i, 0) * .06s);
 }
-[data-reveal="left"]  { transform: translateX(-46px); }
-[data-reveal="right"] { transform: translateX(46px); }
-[data-reveal="scale"] { transform: translateY(30px) scale(.94); }
+[data-reveal="left"]  { transform: translateX(-36px); }
+[data-reveal="right"] { transform: translateX(36px); }
+[data-reveal="scale"] { transform: translateY(24px) scale(.94); }
 [data-reveal].is-revealed {
   opacity: 1;
   transform: none;
@@ -689,10 +689,59 @@
 }
 
 /* =========================================================
+   11.5 关键卡片旋转渐变描边
+   —— 缓慢旋转的 conic 渐变，用 mask 镂空只保留 1px 边框环；
+      强调「精选项目」大卡与「联系表单」两处关键卡片
+   ========================================================= */
+@property --fx-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.work-featured,
+.contact-form { position: relative; }
+.work-featured::after,
+.contact-form::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;                       /* 边框环厚度 */
+  background: conic-gradient(from var(--fx-angle, 0deg),
+    transparent          0deg,
+    rgba(177,140,255,0)  36deg,
+    var(--accent)        92deg,
+    var(--accent-2)      150deg,
+    transparent          204deg,
+    transparent          250deg,
+    var(--accent-3)      308deg,
+    transparent          360deg);
+  /* 只保留 padding 区域（边框环），镂空内部 */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  opacity: .5;
+  pointer-events: none;
+  z-index: 4;
+  animation: fxBorderSpin 7s linear infinite;
+}
+.work-featured:hover::after,
+.contact-form:focus-within::after { opacity: .9; }
+@keyframes fxBorderSpin {
+  to { --fx-angle: 360deg; }
+}
+
+/* =========================================================
    12. 降低动画偏好
    ========================================================= */
 @media (prefers-reduced-motion: reduce) {
   [data-reveal] { opacity: 1 !important; transform: none !important; filter: none !important; }
   .meteor-field { display: none; }
   .tech-track, .now-eq i, .tl-node.now { animation: none !important; }
+  .work-featured::after, .contact-form::after { animation: none !important; }
 }
