@@ -22,6 +22,8 @@
 (function (global) {
   'use strict';
 
+  var REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
   // ---- 颜色 ----
   const C = {
     purple: '#b18cff',
@@ -387,7 +389,12 @@
     }
     state.nodes.spectrum = wrap;
     state.spec.t0 = performance.now();
-    tickSpectrum();
+    if (REDUCED) {
+      // 减少动态效果：频谱条保持静止
+      state.spec.bars.forEach(function (b) { b.style.transform = 'scaleY(0.4)'; });
+    } else {
+      tickSpectrum();
+    }
   }
 
   function tickSpectrum() {
@@ -592,7 +599,7 @@
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) {
         cancelAnimationFrame(state.spec.raf);
-      } else if (state.ready) {
+      } else if (state.ready && !REDUCED) {
         state.spec.t0 = performance.now();
         tickSpectrum();
       }

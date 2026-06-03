@@ -171,6 +171,9 @@
   function init() {
     if (state.running) return true;
 
+    // 尊重「减少动态效果」：不启动持续运行的 WebGL 星云
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+
     const canvas = createCanvas();
     const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false, alpha: true })
             || canvas.getContext('experimental-webgl');

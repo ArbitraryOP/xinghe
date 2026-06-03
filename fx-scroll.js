@@ -168,8 +168,8 @@
     var vh   = state.vh;
     var prog = clamp(y / state.docH, 0, 1);    // 全页面进度 0~1
 
-    // ---- (1) Hero 缩放渐隐 ----
-    if (heroContent) {
+    // ---- (1) Hero 缩放渐隐（reduced-motion 下跳过） ----
+    if (!prefersReduced && heroContent) {
       var heroProg = clamp(y / vh, 0, 1);
       var s = 1 + heroProg * 0.10;             // 1 -> 1.1
       var o = 1 - heroProg * 1.0;              // 1 -> 0
@@ -179,7 +179,7 @@
     }
 
     // 背景文字 UNIVERSE 反向移动（视差），且略放大
-    if (heroBgText) {
+    if (!prefersReduced && heroBgText) {
       var bgShift = y * 0.35;                  // 比滚动慢，且反向 -> 用正值随滚动下移，相对滚动是更慢=视觉上反向
       var bgScale = 1 + clamp(y / vh, 0, 1) * 0.04;
       heroBgText.style.transform =
@@ -187,8 +187,8 @@
       heroBgText.style.opacity = (1 - clamp(y / (vh * 1.4), 0, 0.8)).toFixed(3);
     }
 
-    // ---- (2) 多层视差: aurora blobs ----
-    for (var i = 0; i < auroraBlobs.length; i++) {
+    // ---- (2) 多层视差: aurora blobs（reduced-motion 下跳过） ----
+    if (!prefersReduced) for (var i = 0; i < auroraBlobs.length; i++) {
       var spd = blobSpeeds[i] || ((i + 1) * 0.08);
       var ty2 = -y * spd;
       auroraBlobs[i].style.transform = 'translate3d(0,' + ty2.toFixed(2) + 'px,0)';

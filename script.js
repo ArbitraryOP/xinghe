@@ -7,6 +7,7 @@ const $  = (s, p = document) => p.querySelector(s);
 const $$ = (s, p = document) => Array.from(p.querySelectorAll(s));
 const lerp = (a, b, t) => a + (b - a) * t;
 const clamp = (v, mn, mx) => Math.min(mx, Math.max(mn, v));
+const REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 
 /* ============================================================
@@ -17,15 +18,22 @@ const loaderFill = $('#loaderFill');
 const loaderPct  = $('#loaderPct');
 
 let pct = 0;
-const loaderInterval = setInterval(() => {
-  pct = Math.min(100, pct + Math.random() * 8 + 2);
-  loaderFill.style.width = pct + '%';
-  loaderPct.textContent = Math.floor(pct);
-  if (pct >= 100) {
-    clearInterval(loaderInterval);
-    setTimeout(closeLoader, 450);
-  }
-}, 100);
+if (REDUCED) {
+  // 减少动态效果：跳过开场加载序列，直接进入主页面
+  if (loader) loader.classList.add('gone');
+  document.body.classList.add('is-loaded');
+  triggerHeroSequence();
+} else {
+  const loaderInterval = setInterval(() => {
+    pct = Math.min(100, pct + Math.random() * 8 + 2);
+    loaderFill.style.width = pct + '%';
+    loaderPct.textContent = Math.floor(pct);
+    if (pct >= 100) {
+      clearInterval(loaderInterval);
+      setTimeout(closeLoader, 450);
+    }
+  }, 100);
+}
 
 function closeLoader() {
   loader.classList.add('done');
@@ -235,7 +243,7 @@ for (let i = 0; i < PCOUNT; i++) particles.push(new Particle());
     }
   }
 
-  requestAnimationFrame(tick);
+  if (!REDUCED) requestAnimationFrame(tick);
 })();
 
 
@@ -266,7 +274,14 @@ function typeLoop() {
   }
   setTimeout(typeLoop, tDeleting ? 28 : 65);
 }
-typeLoop();
+if (REDUCED) {
+  // 减少动态效果：直接显示一句，关闭打字机与光标闪烁
+  if (typing) typing.textContent = phrases[0];
+  const _caret = $('.caret');
+  if (_caret) _caret.style.display = 'none';
+} else {
+  typeLoop();
+}
 
 
 /* ============================================================
@@ -495,18 +510,20 @@ $$('a[href^="#"]').forEach(a => {
    15. 视差
    ============================================================ */
 const bgText = $('.hero-bg-text');
-window.addEventListener('mousemove', e => {
-  if (!bgText) return;
-  const x = (e.clientX / window.innerWidth  - 0.5) * 30;
-  const y = (e.clientY / window.innerHeight - 0.5) * 20;
-  bgText.style.translate = `${x}px ${y}px`;
-});
+if (!REDUCED) {
+  window.addEventListener('mousemove', e => {
+    if (!bgText) return;
+    const x = (e.clientX / window.innerWidth  - 0.5) * 30;
+    const y = (e.clientY / window.innerHeight - 0.5) * 20;
+    bgText.style.translate = `${x}px ${y}px`;
+  });
 
-// 滚动视差
-window.addEventListener('scroll', () => {
-  const sy = window.scrollY;
-  if (bgText) bgText.style.transform = `translate(-50%, calc(-50% + ${sy * 0.15}px))`;
-}, { passive: true });
+  // 滚动视差
+  window.addEventListener('scroll', () => {
+    const sy = window.scrollY;
+    if (bgText) bgText.style.transform = `translate(-50%, calc(-50% + ${sy * 0.15}px))`;
+  }, { passive: true });
+}
 
 
 /* ============================================================
@@ -532,11 +549,13 @@ form?.addEventListener('submit', e => {
    17. 极光跟随鼠标轻微视差（深度感）
    ============================================================ */
 const blobs = $$('.aurora-blob');
-window.addEventListener('mousemove', e => {
-  const cx = (e.clientX / window.innerWidth  - 0.5);
-  const cy = (e.clientY / window.innerHeight - 0.5);
-  blobs.forEach((b, i) => {
-    const depth = (i + 1) * 12;
-    b.style.translate = `${cx * depth}px ${cy * depth}px`;
+if (!REDUCED) {
+  window.addEventListener('mousemove', e => {
+    const cx = (e.clientX / window.innerWidth  - 0.5);
+    const cy = (e.clientY / window.innerHeight - 0.5);
+    blobs.forEach((b, i) => {
+      const depth = (i + 1) * 12;
+      b.style.translate = `${cx * depth}px ${cy * depth}px`;
+    });
   });
-});
+}
