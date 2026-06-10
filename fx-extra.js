@@ -97,6 +97,10 @@
     }
     function schedule() {
       var delay = 2600 + Math.random() * 4200;
+      // [DAYPART] 时段系数：夜晚流星更密（×0.5）、白天更稀（×1.6），每次调度时读取
+      var part = document.documentElement.dataset.daypart;
+      if (part === 'night')    delay *= 0.5;
+      else if (part === 'day') delay *= 1.6;
       setTimeout(spawn, delay);
     }
     // 起步先来一颗，再排队
@@ -163,17 +167,34 @@
   function setupFaq() {
     var items = $$('.faq-item');
     if (!items.length) return;
-    items.forEach(function (item) {
+
+    // 同步所有问题按钮的 aria-expanded（open class 挂在 .faq-item 上）
+    function syncAria() {
+      items.forEach(function (it) {
+        var btn = $('.faq-q', it);
+        if (btn) btn.setAttribute('aria-expanded', it.classList.contains('open') ? 'true' : 'false');
+      });
+    }
+
+    items.forEach(function (item, idx) {
       var q = $('.faq-q', item);
       if (!q) return;
+      // 无障碍：给答案区唯一 id，按钮用 aria-controls 指向它
+      var a = $('.faq-a', item);
+      if (a) {
+        a.id = 'faq-a-' + (idx + 1);
+        q.setAttribute('aria-controls', a.id);
+      }
       q.addEventListener('click', function () {
         var isOpen = item.classList.contains('open');
         items.forEach(function (it) { it.classList.remove('open'); });
         if (!isOpen) item.classList.add('open');
+        syncAria();
       });
     });
     // 默认展开第一条
     items[0].classList.add('open');
+    syncAria();
   }
 
   /* ----------------------------------------------------------

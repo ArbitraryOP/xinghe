@@ -275,9 +275,11 @@
 .tech-track {
   display: inline-flex;
   align-items: center;
-  gap: 26px;
+  /* 间距用子项 margin 而非容器 gap：-50% 循环要求半段宽度内含整数个间距，
+     gap 会恒差半个间距导致每圈接缝跳动（.track-half 为 display:contents，子项直接参与布局） */
   animation: techScroll 38s linear infinite;
 }
+.tech-track > .track-half > * { margin-right: 26px; }
 .tech-track:hover { animation-play-state: paused; }
 .tech-track span {
   font-family: "Inter", sans-serif;
@@ -593,14 +595,26 @@
   flex-shrink: 0;
 }
 .faq-item.open .faq-mark { transform: rotate(135deg); }
+/* grid 行高方案：0fr ↔ 1fr，长答案不再被固定 max-height 裁切 */
 .faq-a {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height .45s var(--ease-out), opacity .45s, padding .45s;
+  display: grid;
+  grid-template-rows: 0fr;
   opacity: 0;
+  transition: grid-template-rows .28s ease, opacity .28s ease, padding .28s ease;
 }
-.faq-item.open .faq-a { max-height: 160px; opacity: 1; padding-bottom: 18px; }
-.faq-a p { color: var(--ink-soft); font-size: 14px; line-height: 1.8; }
+.faq-item.open .faq-a {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  padding-bottom: 18px;       /* padding 留在容器上随展开一起过渡，避免行高跳动 */
+  transition-duration: .4s;   /* 展开 .4s、收起 .28s */
+}
+.faq-a p {
+  overflow: hidden;
+  min-height: 0;
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.8;
+}
 
 /* =========================================================
    9. 页脚（多列）

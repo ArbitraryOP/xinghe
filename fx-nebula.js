@@ -36,12 +36,12 @@
     '  return mix(a,b,u.x)+(c-a)*u.y*(1.0-u.x)+(d-b)*u.x*u.y;',
     '}',
 
-    // fbm — 限制 5 octaves (≤6 要求)
+    // fbm — 限制 4 octaves (降低 domain-warp 开销)
     'float fbm(vec2 p){',
     '  float v = 0.0;',
     '  float a = 0.5;',
     '  mat2 rot = mat2(0.8, -0.6, 0.6, 0.8);',
-    '  for(int i=0;i<5;i++){',
+    '  for(int i=0;i<4;i++){',
     '    v += a*noise(p);',
     '    p = rot*p*2.02;',
     '    a *= 0.5;',
@@ -132,7 +132,10 @@
 
   function resize() {
     if (!state.canvas || !state.gl) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5); // 限制 DPR 保性能
+    // 降采样：渲染分辨率 ×0.7，CSS 显示尺寸不变（opacity 0.55 + 上层模糊，视觉无损）
+    // 系数直接乘进 dpr，鼠标坐标换算与 u_res 同步缩放，坐标系保持一致
+    const renderScale = 0.7;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5) * renderScale; // 限制 DPR 保性能
     state.dpr = dpr;
     const w = Math.floor(window.innerWidth * dpr);
     const h = Math.floor(window.innerHeight * dpr);
@@ -217,10 +220,11 @@
       u_mouse: gl.getUniformLocation(prog, 'u_mouse')
     };
     state.start = performance.now();
-    state.mouse = [window.innerWidth * 0.5, window.innerHeight * 0.5];
     state.running = true;
 
     resize();
+    // 初始鼠标取屏幕中心：须在 resize() 之后乘 dpr，与 onMouseMove/u_res 同一渲染像素坐标系
+    state.mouse = [window.innerWidth * 0.5 * state.dpr, window.innerHeight * 0.5 * state.dpr];
     window.addEventListener('resize', resize, { passive: true });
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('touchmove', onTouchMove, { passive: true });

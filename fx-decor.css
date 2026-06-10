@@ -22,11 +22,17 @@
   width: 200px;
   height: 200px;
   z-index: 55;
-  pointer-events: auto;
+  /* 仅悬停设备需要 hover 加速 → 才接收指针事件；
+     触屏上不设 auto（基础规则若写 auto 会以同特异性压过媒体查询分支），不拦截点击 */
+  pointer-events: none;
   opacity: 0;
   transform: translateY(20px) scale(0.85);
   transition: opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.8,.2,1);
   will-change: transform, opacity;
+}
+/* 悬停设备恢复指针事件，承接 hover 加速交互（置于基础规则后以胜出层叠） */
+@media (hover: hover) {
+  .fxd-orrery { pointer-events: auto; }
 }
 .is-loaded .fxd-orrery {
   opacity: 1;
@@ -180,7 +186,7 @@
 /* ==================== 3. 顶部频谱条 ==================== */
 .fxd-spectrum {
   position: fixed;
-  top: 22px;
+  top: 84px;
   left: 50%;
   transform: translateX(-50%);
   width: 120px;
@@ -285,7 +291,7 @@
 .fxd-corner.tl { top: 80px;   left: 20px;  }
 .fxd-corner.tr { top: 80px;   right: 20px; text-align: right; }
 .fxd-corner.bl { bottom: 20px; left: 20px;  }
-.fxd-corner.br { bottom: 20px; right: 20px; text-align: right; }
+.fxd-corner.br { bottom: 96px; right: 20px; text-align: right; }
 
 .fxd-corner.tl svg { top: 0;    left: 0;   }
 .fxd-corner.tr svg { top: 0;    right: 0;  }
@@ -357,20 +363,24 @@
 
 /* ==================== 响应式 ==================== */
 @media (max-width: 768px) {
-  .fxd-orrery   { transform: scale(0.7); left: 12px; bottom: 12px; transform-origin: bottom left; }
+  .fxd-orrery   { display: none; }
   .fxd-corner   { width: 60px; height: 60px; font-size: 8px; }
   .fxd-spectrum { width: 80px; height: 18px; }
   .fxd-compass  { width: 180px; height: 180px; }
 }
-@media (max-width: 480px) {
-  .fxd-orrery   { display: none; }
-}
 
-/* 减少动画偏好 */
+/* 减少动画偏好: 彻底停掉所有装饰动画, 并给闪烁类元素一个静态终态 */
 @media (prefers-reduced-motion: reduce) {
   .fxd-orbit-group, .fxd-moon-group, .fxd-planet-spin,
-  .fxd-star, .fxd-star-halo, .fxd-wave-path,
+  .fxd-star, .fxd-star-halo, .fxd-wave-path, .fxd-wave-dot,
+  .fxd-spec-bar, .fxd-spectrum::before,
   .fxd-compass-inner, .fxd-compass-needle, .fxd-corner .fxd-cross-ring {
-    animation-duration: 30s !important;
+    animation: none !important;
   }
+  /* 静态终态 (与 fx-decor.js 的 REDUCED 分支对齐) */
+  .fxd-star             { opacity: 0.85; filter: drop-shadow(0 0 8px var(--fxd-gold)); }
+  .fxd-star-halo        { opacity: 0.4; }
+  .fxd-wave-dot         { opacity: 0.65; }
+  .fxd-spectrum::before { opacity: 0.65; }
+  .fxd-spec-bar         { transform: scaleY(0.4); } /* 频谱条固定中等高度 */
 }

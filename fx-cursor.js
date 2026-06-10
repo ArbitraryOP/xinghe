@@ -12,7 +12,7 @@
   const prefersReduced = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isTouchOnly = window.matchMedia &&
-    window.matchMedia('(hover: none)').matches;
+    window.matchMedia('(hover: none), (pointer: coarse)').matches;
   if (prefersReduced || isTouchOnly) return;
 
   // ---------- Theme palette ----------
@@ -70,7 +70,6 @@
   let lastT = performance.now();
   let velocity = 0;       // px / ms
   let smoothVel = 0;      // low-pass filtered velocity
-  let inside = false;
 
   // Velocity threshold to flag "liquid" state on the ring.
   const FAST_THRESHOLD = 1.6; // px per ms
@@ -122,7 +121,6 @@
 
     mouseX = e.clientX;
     mouseY = e.clientY;
-    inside = true;
 
     // Spawn 1-3 particles per move, scaled lightly by speed
     const count = 1 + ((velocity * 0.8) | 0);
@@ -138,18 +136,30 @@
     }
 
     lastX = mouseX; lastY = mouseY; lastT = now;
-  }, { passive: true });
 
-  window.addEventListener('mouseleave', () => { inside = false; });
-  window.addEventListener('mouseenter', () => { inside = true; });
+    wake(); // 空闲停帧后由鼠标活动唤醒
+  }, { passive: true });
 
   window.addEventListener('mousedown', (e) => {
     spawnRipple(e.clientX, e.clientY);
     spawnParticles(e.clientX, e.clientY, 8); // burst on click
+    wake();
   }, { passive: true });
 
   // ---------- Loop ----------
   let prev = performance.now();
+  let active = false;   // 是否正在调度 rAF（空闲时停帧省电）
+  let fadeFrames = 0;   // 粒子/涟漪清空后继续淡出的帧计数
+
+  // 鼠标活动时唤醒渲染循环（已 active 则只重置淡出计数）
+  function wake() {
+    fadeFrames = 0;
+    if (active) return;
+    active = true;
+    prev = performance.now();
+    requestAnimationFrame(tick);
+  }
+
   function tick(now) {
     const dt = Math.min(40, now - prev);
     prev = now;
@@ -217,7 +227,19 @@
       }
     }
 
+    // 空闲停帧：粒子与涟漪都清空且拖尾已完全淡出后，最后清屏一次并停止调度
+    if (particles.length === 0 && ripples.length === 0) {
+      fadeFrames++;
+      if (fadeFrames > 30) {  // 0.82^30 ≈ 0.3%，残影已不可见
+        ctx.clearRect(0, 0, W, H);
+        active = false;
+        return;
+      }
+    } else {
+      fadeFrames = 0;
+    }
+
     requestAnimationFrame(tick);
   }
-  requestAnimationFrame(tick);
+  wake(); // 首帧启动
 })();

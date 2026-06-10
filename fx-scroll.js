@@ -37,27 +37,25 @@
   var hero          = $('#home');
   var heroContent   = hero ? $('.hero-content', hero) : null;
   var heroBgText    = hero ? $('.hero-bg-text', hero) : null;
-  var auroraBlobs   = $$('.aurora-blob');
   var sectionNums   = $$('.section-num');
   var sectionHeads  = $$('section .section-header');
   var workCards     = $$('.work-card');
-  var sections      = ['#home', '#about', '#skills', '#works', '#contact']
-                        .map(function (id) { return document.querySelector(id); })
-                        .filter(Boolean);
-
-  // 视差速度配置 (aurora blobs 各 blob 不同速度)
-  var blobSpeeds = [0.18, -0.12, 0.26, -0.20];
+  // 动态采集全部章节，避免新增 section 后这里再次漂移
+  var sections      = Array.prototype.slice.call(
+                        document.querySelectorAll('main section[id]'));
 
   // ----------------- 1) 注入 进度环 + 章节闪光 -----------------
   var ring, ringBar, ringPctText;
   var flash;
+  var flashTimer = null;
 
   function injectUI() {
     // 进度环
     if (!document.querySelector('.fx-scroll-ring')) {
-      ring = document.createElement('div');
+      ring = document.createElement('button');
+      ring.type = 'button';
       ring.className = 'fx-scroll-ring';
-      ring.setAttribute('aria-label', '滚动进度 · 点击回顶');
+      ring.setAttribute('aria-label', '回到顶部');
       ring.innerHTML =
         '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">' +
           '<defs>' +
@@ -150,13 +148,16 @@
 
   function triggerFlash() {
     if (!flash || prefersReduced) return;
+    // 快速滚动重触发时先清掉上一次的收尾计时器，防止状态错乱
+    if (flashTimer) clearTimeout(flashTimer);
     flash.classList.remove('is-on');
     // 触发重排以重启动画
     void flash.offsetWidth;
     flash.classList.add('is-on');
     // 200ms 主体 + 余韵
-    setTimeout(function () {
+    flashTimer = setTimeout(function () {
       if (flash) flash.classList.remove('is-on');
+      flashTimer = null;
     }, 560);
   }
 
@@ -183,16 +184,12 @@
       var bgShift = y * 0.35;                  // 比滚动慢，且反向 -> 用正值随滚动下移，相对滚动是更慢=视觉上反向
       var bgScale = 1 + clamp(y / vh, 0, 1) * 0.04;
       heroBgText.style.transform =
-        'translate3d(0,' + bgShift.toFixed(2) + 'px,0) scale(' + bgScale.toFixed(4) + ')';
+        'translate(-50%, -50%) translate3d(0,' + bgShift.toFixed(2) + 'px,0) scale(' + bgScale.toFixed(4) + ')';
       heroBgText.style.opacity = (1 - clamp(y / (vh * 1.4), 0, 0.8)).toFixed(3);
     }
 
-    // ---- (2) 多层视差: aurora blobs（reduced-motion 下跳过） ----
-    if (!prefersReduced) for (var i = 0; i < auroraBlobs.length; i++) {
-      var spd = blobSpeeds[i] || ((i + 1) * 0.08);
-      var ty2 = -y * spd;
-      auroraBlobs[i].style.transform = 'translate3d(0,' + ty2.toFixed(2) + 'px,0)';
-    }
+    // ---- (2) 多层视差: aurora blobs —— 只写根变量，合成交给 styles.css 的 translate ----
+    if (!prefersReduced) document.documentElement.style.setProperty('--fx-scroll-y', y.toFixed(1));
 
     // ---- (3) section-num 反向轻微移动 ----
     for (var n = 0; n < sectionNums.length; n++) {
@@ -217,9 +214,6 @@
       if (sr.top <= 0 && sr.bottom > vh * 0.3) {
         // 处于"钉住"区间
         headProg = clamp(-sr.top / Math.max(sr.height - vh * 0.4, 1), 0, 1);
-        if (!head.classList.contains('is-pinned')) head.classList.add('is-pinned');
-      } else {
-        if (head.classList.contains('is-pinned')) head.classList.remove('is-pinned');
       }
       head.style.setProperty('--fx-pin-progress', headProg.toFixed(3));
     }

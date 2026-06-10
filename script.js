@@ -115,43 +115,49 @@ function triggerHeroSequence() {
 
 
 /* ============================================================
-   4. 自定义光标
+   4. 自定义光标（仅精确指针设备启用）
    ============================================================ */
-const dot  = $('#cursorDot');
-const ring = $('#cursorRing');
-const glow = $('#mouseGlow');
-
+// 鼠标位置全局跟踪（粒子 canvas 的鼠标连线也依赖 mx/my）
 let mx = window.innerWidth / 2, my = window.innerHeight / 2;
-let rx = mx, ry = my;
-let gx = mx, gy = my;
-
 window.addEventListener('mousemove', e => {
   mx = e.clientX; my = e.clientY;
-  dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
 });
 
-(function cursorLoop() {
-  rx = lerp(rx, mx, 0.18);
-  ry = lerp(ry, my, 0.18);
-  gx = lerp(gx, mx, 0.06);
-  gy = lerp(gy, my, 0.06);
+if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !REDUCED) {
+  const dot  = $('#cursorDot');
+  const ring = $('#cursorRing');
+  const glow = $('#mouseGlow');
 
-  ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
-  glow.style.left = gx + 'px';
-  glow.style.top  = gy + 'px';
+  let rx = mx, ry = my;
+  let gx = mx, gy = my;
 
-  requestAnimationFrame(cursorLoop);
-})();
+  window.addEventListener('mousemove', e => {
+    dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+  });
 
-$$('a, button, .tilt-card, .indi-list li').forEach(el => {
-  el.addEventListener('mouseenter', () => ring.classList.add('hover'));
-  el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
-});
+  (function cursorLoop() {
+    rx = lerp(rx, mx, 0.18);
+    ry = lerp(ry, my, 0.18);
+    gx = lerp(gx, mx, 0.06);
+    gy = lerp(gy, my, 0.06);
 
-$$('input, textarea').forEach(el => {
-  el.addEventListener('mouseenter', () => { ring.classList.add('text'); dot.classList.add('text'); });
-  el.addEventListener('mouseleave', () => { ring.classList.remove('text'); dot.classList.remove('text'); });
-});
+    ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+    glow.style.left = gx + 'px';
+    glow.style.top  = gy + 'px';
+
+    requestAnimationFrame(cursorLoop);
+  })();
+
+  $$('a, button, .tilt-card, .indi-list li').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+
+  $$('input, textarea').forEach(el => {
+    el.addEventListener('mouseenter', () => { ring.classList.add('text'); dot.classList.add('text'); });
+    el.addEventListener('mouseleave', () => { ring.classList.remove('text'); dot.classList.remove('text'); });
+  });
+}
 
 
 /* ============================================================
@@ -285,13 +291,35 @@ if (REDUCED) {
 
 
 /* ============================================================
-   7. 时钟
+   7. 时钟 + 时段感知
    ============================================================ */
+const DAYPART_GREETINGS = {
+  dawn:  '黎明巡航 · Dawn Patrol',
+  day:   '在线 · 正在创造',
+  dusk:  '暮色航行 · Dusk Sail',
+  night: '夜航中 · Night Voyage'
+};
+
+function setDaypart() {
+  const h = new Date().getHours();
+  let part = 'night';                       // 20-4 时
+  if (h >= 5 && h <= 7)        part = 'dawn';
+  else if (h >= 8 && h <= 16)  part = 'day';
+  else if (h >= 17 && h <= 19) part = 'dusk';
+  document.documentElement.dataset.daypart = part;
+  // 时段问候（第一个 span 是 dot-pulse 圆点）
+  const heroTag = $('.hero-tag span:last-child');
+  if (heroTag && heroTag.textContent !== DAYPART_GREETINGS[part]) {
+    heroTag.textContent = DAYPART_GREETINGS[part];
+  }
+}
+
 const timeEl = $('#navTime');
 (function clock() {
   const d = new Date();
   const pad = n => String(n).padStart(2, '0');
   timeEl.textContent = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  setDaypart();
   setTimeout(clock, 1000);
 })();
 
@@ -459,13 +487,35 @@ document.head.appendChild(style);
 
 
 /* ============================================================
-   13. 章节指示器 + 导航联动
+   13. 章节指示器 + 导航联动 + 导航滑动胶囊
    ============================================================ */
 const sections = $$('section[id]');
 const navLinks = $$('.nav-link');
 const indiItems = $$('.indi-list li');
 const indiProgress = $('#indiProgress');
 
+// 导航滑动指示器（胶囊），注入为 .nav-links 第一个子元素
+const navLinksUl = $('.nav-links');
+const navPill = document.createElement('span');
+navPill.className = 'nav-pill';
+navPill.setAttribute('aria-hidden', 'true');
+if (navLinksUl) navLinksUl.insertBefore(navPill, navLinksUl.firstChild);
+
+function positionPill(activeLink) {
+  // ≤720px 导航隐藏（offsetParent 为 null）时跳过
+  if (!navLinksUl || !activeLink || activeLink.offsetParent === null) return;
+  navPill.style.transform = `translateX(${activeLink.offsetLeft}px)`;
+  navPill.style.width = activeLink.offsetWidth + 'px';
+  navLinksUl.classList.add('has-pill');
+}
+
+// 缓存各章节 offsetTop，避免滚动时反复触发布局计算
+let sectionTops = [];
+function measureSections() {
+  sectionTops = sections.map(s => ({ id: s.id, top: s.offsetTop }));
+}
+
+let lastActiveId = '';
 function syncScroll() {
   const sy = window.scrollY;
   const docH = document.documentElement.scrollHeight - window.innerHeight;
@@ -474,17 +524,50 @@ function syncScroll() {
 
   const trigger = sy + window.innerHeight * 0.4;
   let activeId = 'home';
-  sections.forEach(s => { if (s.offsetTop <= trigger) activeId = s.id; });
-  navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + activeId));
-  indiItems.forEach(l => l.classList.toggle('active', l.dataset.target === '#' + activeId));
+  sectionTops.forEach(s => { if (s.top <= trigger) activeId = s.id; });
+
+  // 仅激活项变化时才更新 classList
+  if (activeId !== lastActiveId) {
+    lastActiveId = activeId;
+    let activeLink = null;
+    navLinks.forEach(l => {
+      const on = l.getAttribute('href') === '#' + activeId;
+      l.classList.toggle('active', on);
+      if (on) activeLink = l;
+    });
+    indiItems.forEach(l => l.classList.toggle('active', l.dataset.target === '#' + activeId));
+    positionPill(activeLink);
+  }
 }
-window.addEventListener('scroll', syncScroll, { passive: true });
-window.addEventListener('resize', syncScroll);
+
+let scrollTicking = false;
+window.addEventListener('scroll', () => {
+  if (scrollTicking) return;
+  scrollTicking = true;
+  requestAnimationFrame(() => {
+    syncScroll();
+    scrollTicking = false;
+  });
+}, { passive: true });
+
+function remeasureAndSync() {
+  measureSections();
+  syncScroll();
+  positionPill($('.nav-link.active'));
+  // 跨过 720px 断点时面板与按钮都会隐藏，必须解除滚动锁，否则页面冻结
+  if (window.innerWidth > 720 && document.body.classList.contains('nav-open')) closeNavPanel();
+}
+window.addEventListener('resize', remeasureAndSync);
+window.addEventListener('load', remeasureAndSync);
+remeasureAndSync();
+
+// 减少动态偏好下不做平滑滚动动画（与 CSS 端 scroll-behavior:auto 一致）
+const SCROLL_BEHAVIOR = REDUCED ? 'auto' : 'smooth';
 
 indiItems.forEach(li => {
   li.addEventListener('click', () => {
     const t = $(li.dataset.target);
-    if (t) window.scrollTo({ top: t.offsetTop - 80, behavior: 'smooth' });
+    if (t) window.scrollTo({ top: t.offsetTop - 80, behavior: SCROLL_BEHAVIOR });
   });
 });
 
@@ -493,13 +576,16 @@ indiItems.forEach(li => {
    14. 平滑锚点滚动
    ============================================================ */
 $$('a[href^="#"]').forEach(a => {
+  // skip-link 必须走浏览器默认片段导航：preventDefault 会取消把焦点
+  // 移入 tabindex="-1" 主内容的唯一机制，使跳转链接对键盘用户失效
+  if (a.classList.contains('skip-link')) return;
   a.addEventListener('click', e => {
     const id = a.getAttribute('href');
     if (id.length > 1) {
       const t = $(id);
       if (t) {
         e.preventDefault();
-        window.scrollTo({ top: t.offsetTop - 80, behavior: 'smooth' });
+        window.scrollTo({ top: t.offsetTop - 80, behavior: SCROLL_BEHAVIOR });
       }
     }
   });
@@ -517,45 +603,90 @@ if (!REDUCED) {
     const y = (e.clientY / window.innerHeight - 0.5) * 20;
     bgText.style.translate = `${x}px ${y}px`;
   });
-
-  // 滚动视差
-  window.addEventListener('scroll', () => {
-    const sy = window.scrollY;
-    if (bgText) bgText.style.transform = `translate(-50%, calc(-50% + ${sy * 0.15}px))`;
-  }, { passive: true });
+  // 滚动视差已移交 fx-scroll.js（transform 由其独家负责，避免冲突）
 }
 
 
 /* ============================================================
-   16. 表单提交（视觉反馈）
+   16. 表单提交（跳转 GitHub Issue 留言，不伪造发送）
    ============================================================ */
 const form = $('#contactForm');
-form?.addEventListener('submit', e => {
+if (form) form.addEventListener('submit', e => {
   e.preventDefault();
-  const btn = form.querySelector('button');
-  const span = btn.querySelector('.btn-text');
-  const original = span.textContent;
-  span.textContent = '已送达 · Sent';
-  btn.style.background = 'linear-gradient(120deg, #4ade80, #6ee7ff)';
-  setTimeout(() => {
-    span.textContent = original;
-    btn.style.background = '';
-    form.reset();
-  }, 2200);
+  const name  = $('#fName')  ? $('#fName').value  : '';
+  const email = $('#fEmail') ? $('#fEmail').value : '';
+  let msg     = $('#fMsg')   ? $('#fMsg').value   : '';
+  const sign  = '\n\n— ' + name + ' (' + email + ')';
+  // GitHub 对 URL 长度约 8KB 上限，超长 body 会得到 414/500 错误页；
+  // 按百分号编码后的字节数截断（中文每字约 9 字节）
+  let truncated = false;
+  while (msg && encodeURIComponent(msg + sign).length > 6000) {
+    msg = msg.slice(0, -50);
+    truncated = true;
+  }
+  if (truncated) msg += '\n…（留言过长已截断）';
+  window.open(
+    'https://github.com/ArbitraryOP/xinghe/issues/new?title=' +
+    encodeURIComponent('来信 · ' + name) +
+    '&body=' + encodeURIComponent(msg + sign),
+    '_blank', 'noopener'
+  );
+  const formStatus = $('#formStatus');
+  if (formStatus) formStatus.textContent = truncated
+    ? '留言较长已截断 · 已在新标签页打开 GitHub 留言窗口 ✦'
+    : '已在新标签页打开 GitHub 留言窗口 ✦';
 });
 
 
 /* ============================================================
    17. 极光跟随鼠标轻微视差（深度感）
+   只写根节点变量 --fx-mx / --fx-my，位移由 styles.css 在
+   .aurora-blob 的 translate 属性上统一合成（单一所有权）
    ============================================================ */
-const blobs = $$('.aurora-blob');
 if (!REDUCED) {
+  let fxMx = 0, fxMy = 0, fxRafPending = false;
   window.addEventListener('mousemove', e => {
-    const cx = (e.clientX / window.innerWidth  - 0.5);
-    const cy = (e.clientY / window.innerHeight - 0.5);
-    blobs.forEach((b, i) => {
-      const depth = (i + 1) * 12;
-      b.style.translate = `${cx * depth}px ${cy * depth}px`;
+    fxMx = e.clientX / window.innerWidth  - 0.5;
+    fxMy = e.clientY / window.innerHeight - 0.5;
+    if (fxRafPending) return;
+    fxRafPending = true;
+    requestAnimationFrame(() => {
+      document.documentElement.style.setProperty('--fx-mx', fxMx.toFixed(4));
+      document.documentElement.style.setProperty('--fx-my', fxMy.toFixed(4));
+      fxRafPending = false;
     });
   });
 }
+
+
+/* ============================================================
+   18. 移动端汉堡导航（≤720px）
+   ============================================================ */
+const navToggle = $('#navToggle');
+const navPanel  = $('#navPanel');
+
+function closeNavPanel() {
+  document.body.classList.remove('nav-open');
+  if (navToggle) navToggle.setAttribute('aria-expanded', 'false');
+}
+
+if (navToggle) navToggle.addEventListener('click', () => {
+  const open = document.body.classList.toggle('nav-open');
+  navToggle.setAttribute('aria-expanded', String(open));
+});
+
+// 点击面板链接或面板空白处关闭（链接的平滑滚动由 §14 统一处理）
+if (navPanel) navPanel.addEventListener('click', e => {
+  if (e.target === navPanel || e.target.closest('.nav-panel-link')) closeNavPanel();
+});
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.body.classList.contains('nav-open')) closeNavPanel();
+});
+
+
+/* ============================================================
+   19. 页脚版权年份
+   ============================================================ */
+const footYear = $('#footYear');
+if (footYear) footYear.textContent = new Date().getFullYear();

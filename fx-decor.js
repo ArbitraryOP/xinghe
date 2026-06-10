@@ -607,6 +607,10 @@
 
     // 键盘快捷键: Shift+C 切换罗盘
     document.addEventListener('keydown', function (e) {
+      // 输入法合成中、或焦点在表单/可编辑区域时不响应 (避免打字误触)
+      if (e.isComposing) return;
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
       if (e.shiftKey && (e.key === 'C' || e.key === 'c')) {
         toggleCompass();
       }

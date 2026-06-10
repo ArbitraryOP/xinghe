@@ -12,7 +12,6 @@
 }
 
 /* 让所有视差元素与 hero 内容获得 GPU 加速 */
-[data-fx-parallax],
 .hero-content,
 .hero-bg-text,
 .aurora-blob,
@@ -37,21 +36,18 @@
    2) Section Header 钉住效果
    ============================================================ */
 .section-header {
-  position: relative;
-  /* 由 JS 在合适时机给它加 .is-pinned，CSS 这边只做表现 */
-  transition: transform .35s var(--fx-ease),
-              opacity   .35s var(--fx-ease);
-  z-index: 5;
-}
-
-.section-header.is-pinned {
+  /* 常驻 sticky：未进入钉住区间时 --fx-pin-progress 为 0，外观与普通文档流一致
+     top 须低于固定导航胶囊（top:28 + 高度），否则钉住时标题滑入导航背后 */
   position: sticky;
-  top: 12px;
-  /* 微缩 + 淡化 */
-  --fx-pin-progress: 0;          /* 0~1 由 JS 写入 */
+  top: 96px;
+  /* 微缩 + 淡化，0~1 由 JS 写入 --fx-pin-progress */
+  --fx-pin-progress: 0;
   transform: scale(calc(1 - 0.18 * var(--fx-pin-progress)));
   opacity: calc(1 - 0.45 * var(--fx-pin-progress));
   filter: blur(calc(var(--fx-pin-progress) * 0.4px));
+  transition: transform .35s var(--fx-ease),
+              opacity   .35s var(--fx-ease);
+  z-index: 5;
 }
 
 /* 标题里的 section-num 反向小幅位移 (由 JS 写 --fx-num-shift) */
@@ -77,16 +73,30 @@
   width: 64px;
   height: 64px;
   z-index: 99;
+  /* button 元素默认样式重置 */
+  background: none;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  font: inherit;
   pointer-events: auto;
   cursor: pointer;
   opacity: 0;
+  /* visibility 同步隐藏：移出 Tab 序与无障碍树，并停止拦截点击 */
+  visibility: hidden;
   transform: translate3d(0, 16px, 0) scale(.85);
   transition: opacity .5s var(--fx-ease),
-              transform .6s var(--fx-ease);
+              transform .6s var(--fx-ease),
+              visibility .5s;
 }
 .fx-scroll-ring.is-visible {
   opacity: 1;
+  visibility: visible;
   transform: translate3d(0, 0, 0) scale(1);
+}
+/* 精确指针设备沿用全站自定义光标，避免悬停时出现双光标 */
+@media (hover: hover) and (pointer: fine) {
+  .fx-scroll-ring { cursor: none; }
 }
 .fx-scroll-ring:hover {
   transform: translate3d(0, -2px, 0) scale(1.05);

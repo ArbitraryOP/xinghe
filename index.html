@@ -4,15 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>星河 · Personal Universe</title>
+  <meta name="description" content="星河的个人宇宙 —— 在代码、设计与想象的交界处，搭建奇异结构的造物者。WebGL 星云、粒子星座与滚动电影感，纯 vanilla 打造的暗色宇宙主页。" />
+  <link rel="canonical" href="https://arbitraryop.github.io/xinghe/" />
+  <meta property="og:title" content="星河 · Personal Universe" />
+  <meta property="og:description" content="在代码、设计与想象的交界处，搭建奇异结构的造物者。" />
+  <meta property="og:url" content="https://arbitraryop.github.io/xinghe/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="星河 · Personal Universe" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="theme-color" content="#08080f" />
+  <link rel="icon" href="favicon.ico" sizes="32x32" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="stylesheet" href="styles.css" />
+  <noscript>
+    <style>
+      /* 无 JS 时揭幕 + 还原系统光标，保证内容可读可导航 */
+      .loader { display: none; }
+      html, body, a, button, input, textarea { cursor: auto; }
+      .cursor-dot, .cursor-ring, .mouse-glow { display: none; }
+    </style>
+  </noscript>
   <link rel="stylesheet" href="fx-scroll.css" />
   <link rel="stylesheet" href="fx-extra.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600;800;900&family=Noto+Serif+SC:wght@200;300;600;900&family=Space+Mono&family=Cormorant+Garamond:ital,wght@1,300;1,600&display=swap" rel="stylesheet" />
 </head>
 <body>
 
+  <!-- ========== 无障碍跳转 ========== -->
+  <a class="skip-link" href="#smoothMain">跳到主内容 · Skip to content</a>
+
   <!-- ========== 开场加载 ========== -->
-  <div class="loader" id="loader">
+  <div class="loader" id="loader" aria-hidden="true">
     <div class="loader-curtain top"></div>
     <div class="loader-curtain bottom"></div>
     <div class="loader-content">
@@ -69,19 +91,37 @@
       <li><a href="#contact" class="nav-link" data-scramble>Contact</a></li>
     </ul>
     <div class="nav-time" id="navTime">00:00:00</div>
+    <button class="nav-toggle" id="navToggle" type="button" aria-label="打开导航" aria-expanded="false" aria-controls="navPanel">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
   </nav>
+
+  <!-- ========== 移动端导航面板 ========== -->
+  <div class="nav-panel" id="navPanel">
+    <ul class="nav-panel-links">
+      <li><a class="nav-panel-link" href="#home">首页 · Home</a></li>
+      <li><a class="nav-panel-link" href="#about">关于 · About</a></li>
+      <li><a class="nav-panel-link" href="#journey">历程 · Journey</a></li>
+      <li><a class="nav-panel-link" href="#skills">技能 · Skills</a></li>
+      <li><a class="nav-panel-link" href="#works">作品 · Works</a></li>
+      <li><a class="nav-panel-link" href="#now">此刻 · Now</a></li>
+      <li><a class="nav-panel-link" href="#contact">联络 · Contact</a></li>
+    </ul>
+  </div>
 
   <!-- ========== 侧边章节指示器 ========== -->
   <aside class="section-indicator" id="sectionIndicator">
     <div class="indi-line"><div class="indi-progress" id="indiProgress"></div></div>
     <ul class="indi-list">
-      <li data-target="#home"><span class="indi-num">01</span><span class="indi-name">首页 · Home</span><span class="indi-dot"></span></li>
-      <li data-target="#about"><span class="indi-num">02</span><span class="indi-name">关于 · About</span><span class="indi-dot"></span></li>
-      <li data-target="#journey"><span class="indi-num">03</span><span class="indi-name">历程 · Journey</span><span class="indi-dot"></span></li>
-      <li data-target="#skills"><span class="indi-num">04</span><span class="indi-name">技能 · Skills</span><span class="indi-dot"></span></li>
-      <li data-target="#works"><span class="indi-num">05</span><span class="indi-name">作品 · Works</span><span class="indi-dot"></span></li>
-      <li data-target="#now"><span class="indi-num">06</span><span class="indi-name">此刻 · Now</span><span class="indi-dot"></span></li>
-      <li data-target="#contact"><span class="indi-num">07</span><span class="indi-name">联络 · Contact</span><span class="indi-dot"></span></li>
+      <li data-target="#home"><button type="button" class="indi-btn" aria-label="跳到 首页 · Home"><span class="indi-num">01</span><span class="indi-name">首页 · Home</span><span class="indi-dot"></span></button></li>
+      <li data-target="#about"><button type="button" class="indi-btn" aria-label="跳到 关于 · About"><span class="indi-num">02</span><span class="indi-name">关于 · About</span><span class="indi-dot"></span></button></li>
+      <li data-target="#journey"><button type="button" class="indi-btn" aria-label="跳到 历程 · Journey"><span class="indi-num">03</span><span class="indi-name">历程 · Journey</span><span class="indi-dot"></span></button></li>
+      <li data-target="#skills"><button type="button" class="indi-btn" aria-label="跳到 技能 · Skills"><span class="indi-num">04</span><span class="indi-name">技能 · Skills</span><span class="indi-dot"></span></button></li>
+      <li data-target="#works"><button type="button" class="indi-btn" aria-label="跳到 作品 · Works"><span class="indi-num">05</span><span class="indi-name">作品 · Works</span><span class="indi-dot"></span></button></li>
+      <li data-target="#now"><button type="button" class="indi-btn" aria-label="跳到 此刻 · Now"><span class="indi-num">06</span><span class="indi-name">此刻 · Now</span><span class="indi-dot"></span></button></li>
+      <li data-target="#contact"><button type="button" class="indi-btn" aria-label="跳到 联络 · Contact"><span class="indi-num">07</span><span class="indi-name">联络 · Contact</span><span class="indi-dot"></span></button></li>
     </ul>
   </aside>
 
@@ -92,11 +132,11 @@
   </aside>
 
   <!-- ========== 主内容 ========== -->
-  <main id="smoothMain">
+  <main id="smoothMain" tabindex="-1">
 
     <!-- ====== HERO ====== -->
     <section id="home" class="hero">
-      <div class="hero-bg-text" data-parallax="0.05">UNIVERSE</div>
+      <div class="hero-bg-text" aria-hidden="true">UNIVERSE</div>
       <svg class="hero-constellation" viewBox="0 0 800 600" preserveAspectRatio="none">
         <g class="cons-lines">
           <line x1="120" y1="80"  x2="240" y2="160" />
@@ -131,9 +171,10 @@
         <h1 class="hero-title">
           <span class="line" data-split>你好，我是</span>
           <span class="line gradient-line" data-split>星河</span>
-          <span class="line en-line">
+          <span class="line en-line" aria-hidden="true">
             <span class="typing-text" id="typingText"></span><span class="caret">|</span>
           </span>
+          <span class="sr-only">Creative Developer · 创意开发者</span>
         </h1>
 
         <p class="hero-desc fade-up delay-3">
@@ -178,7 +219,7 @@
       <div class="hero-meta">
         <div class="hero-meta-row"><span>LAT</span><span>31°14′N</span></div>
         <div class="hero-meta-row"><span>LON</span><span>121°28′E</span></div>
-        <div class="hero-meta-row"><span>VER</span><span>v3.0 · 2026</span></div>
+        <div class="hero-meta-row"><span>VER</span><span>v3.1 · 2026</span></div>
       </div>
     </section>
 
@@ -398,8 +439,8 @@
       <!-- 科技跑马灯 -->
       <div class="tech-marquee">
         <div class="tech-track">
-          <span>JavaScript</span><i>/</i><span>TypeScript</span><i>/</i><span>React</span><i>/</i><span>Vue</span><i>/</i><span>Three.js</span><i>/</i><span>WebGL</span><i>/</i><span>GLSL</span><i>/</i><span>GSAP</span><i>/</i><span>Node.js</span><i>/</i><span>Python</span><i>/</i><span>Canvas</span><i>/</i><span>Figma</span><i>/</i>
-          <span>JavaScript</span><i>/</i><span>TypeScript</span><i>/</i><span>React</span><i>/</i><span>Vue</span><i>/</i><span>Three.js</span><i>/</i><span>WebGL</span><i>/</i><span>GLSL</span><i>/</i><span>GSAP</span><i>/</i><span>Node.js</span><i>/</i><span>Python</span><i>/</i><span>Canvas</span><i>/</i><span>Figma</span><i>/</i>
+          <span class="track-half"><span>JavaScript</span><i>/</i><span>TypeScript</span><i>/</i><span>React</span><i>/</i><span>Vue</span><i>/</i><span>Three.js</span><i>/</i><span>WebGL</span><i>/</i><span>GLSL</span><i>/</i><span>GSAP</span><i>/</i><span>Node.js</span><i>/</i><span>Python</span><i>/</i><span>Canvas</span><i>/</i><span>Figma</span><i>/</i></span>
+          <span class="track-half" aria-hidden="true"><span>JavaScript</span><i>/</i><span>TypeScript</span><i>/</i><span>React</span><i>/</i><span>Vue</span><i>/</i><span>Three.js</span><i>/</i><span>WebGL</span><i>/</i><span>GLSL</span><i>/</i><span>GSAP</span><i>/</i><span>Node.js</span><i>/</i><span>Python</span><i>/</i><span>Canvas</span><i>/</i><span>Figma</span><i>/</i></span>
         </div>
       </div>
     </section>
@@ -414,7 +455,7 @@
       </div>
 
       <!-- 精选大卡 -->
-      <a href="https://github.com/ArbitraryOP" target="_blank" rel="noopener" class="work-featured tilt-card spotlight" data-reveal="scale">
+      <a href="https://github.com/ArbitraryOP/xinghe" target="_blank" rel="noopener" class="work-featured tilt-card spotlight" data-reveal="scale">
         <div class="wf-visual">
           <div class="wf-orb"></div>
           <div class="wf-orb o2"></div>
@@ -422,21 +463,21 @@
         </div>
         <div class="wf-info">
           <span class="wf-badge">★ 精选 · Featured</span>
-          <span class="work-year">2026 · 进行中</span>
-          <h3 data-scramble>星图 · Stellaris</h3>
-          <p>一个交互式三维星图：把你在 GitHub 上的每一次提交，绘制成夜空里独一无二的星座，
-          可旋转、可缩放、可分享。它是这整个「星河」宇宙的起点，也是我目前投入最多的造物。</p>
+          <span class="work-year">2026 · v3.1</span>
+          <h3 data-scramble>星河 · Personal Universe</h3>
+          <p>你正在看的这个网站本身：WebGL 噪声星云、Canvas 粒子星座、滚动驱动的电影感动效，
+          全部用纯 vanilla JS 与 CSS 手工搭建，零框架、零依赖，源码完全开放。</p>
           <div class="wf-meta">
-            <div><span>角色</span><b>设计 + 全栈开发</b></div>
-            <div><span>技术</span><b>Three.js · WebGL · Next.js</b></div>
-            <div><span>状态</span><b>公开开发中</b></div>
+            <div><span>角色</span><b>设计 + 开发</b></div>
+            <div><span>技术</span><b>Vanilla JS · Canvas · CSS</b></div>
+            <div><span>状态</span><b>持续迭代 · 开源</b></div>
           </div>
-          <span class="wf-cta">前往 GitHub 查看 <svg viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+          <span class="wf-cta">在 GitHub 查看源码 <svg viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
         </div>
       </a>
 
       <div class="works-grid">
-        <a href="#" class="work-card tilt-card spotlight">
+        <div role="group" class="work-card tilt-card spotlight is-wip">
           <div class="work-visual w2">
             <div class="work-glow"></div>
             <div class="work-orb"></div>
@@ -446,11 +487,11 @@
             <h3 data-scramble>纸短 · Letterly</h3>
             <p>一封写给陌生人的信，匿名漂流穿过整个互联网，被某个同样深夜未眠的人拾起、回信。</p>
             <div class="work-tags"><span>Next.js</span><span>Edge</span><span>KV</span></div>
-            <span class="work-arrow">→</span>
+            <span class="work-badge">构思中 · CONCEPT</span>
           </div>
-        </a>
+        </div>
 
-        <a href="#" class="work-card tilt-card spotlight">
+        <div role="group" class="work-card tilt-card spotlight is-wip">
           <div class="work-visual w3">
             <div class="work-glow"></div>
             <div class="work-orb"></div>
@@ -460,11 +501,11 @@
             <h3 data-scramble>呼吸 · Breathe</h3>
             <p>跟随屏幕的节奏吸气、停顿、呼出——一个会冥想的网页，用声音与光圈陪你慢下来四分钟。</p>
             <div class="work-tags"><span>Canvas</span><span>Web Audio</span></div>
-            <span class="work-arrow">→</span>
+            <span class="work-badge">构思中 · CONCEPT</span>
           </div>
-        </a>
+        </div>
 
-        <a href="#" class="work-card tilt-card spotlight">
+        <div role="group" class="work-card tilt-card spotlight is-wip">
           <div class="work-visual w1">
             <div class="work-glow"></div>
             <div class="work-orb"></div>
@@ -474,11 +515,11 @@
             <h3 data-scramble>第六感 · Sixth</h3>
             <p>用手机陀螺仪在空气中「画画」的小型实验，把每一次挥手都留成一道发光的轨迹。</p>
             <div class="work-tags"><span>PWA</span><span>Sensor</span></div>
-            <span class="work-arrow">→</span>
+            <span class="work-badge">构思中 · CONCEPT</span>
           </div>
-        </a>
+        </div>
 
-        <a href="#" class="work-card tilt-card spotlight">
+        <div role="group" class="work-card tilt-card spotlight is-wip">
           <div class="work-visual w4">
             <div class="work-glow"></div>
             <div class="work-orb"></div>
@@ -488,9 +529,9 @@
             <h3 data-scramble>潮汐 · Tide</h3>
             <p>跟随真实月相变化的动态壁纸生成器，让桌面随着天上的月亮一起圆缺、涨落。</p>
             <div class="work-tags"><span>Canvas</span><span>Astronomy</span></div>
-            <span class="work-arrow">→</span>
+            <span class="work-badge">构思中 · CONCEPT</span>
           </div>
-        </a>
+        </div>
       </div>
 
       <a href="https://github.com/ArbitraryOP" target="_blank" rel="noopener" class="works-more magnetic" data-magnetic>
@@ -517,7 +558,7 @@
       <div class="now-grid">
         <div class="now-card glass spotlight" data-reveal="scale" style="--i:0">
           <div class="now-head"><span class="now-ico">⚙</span><span class="now-tag">构建中 · Building</span></div>
-          <p>『星河』的下一次日出——把 GitHub 的提交记录绘制成可旋转的星座。</p>
+          <p>『星河』的下一次日出——持续打磨你眼前的这个小宇宙：更诚实的内容、更顺滑的动效、对每一位访客更友好。</p>
           <div class="now-foot"><span class="dot-pulse sm"></span> 每个夜晚都在长大</div>
         </div>
 
@@ -543,7 +584,7 @@
     </section>
 
     <!-- ====== 跑马灯 ====== -->
-    <section class="quote">
+    <section class="quote" aria-hidden="true">
       <div class="quote-track">
         <span>CODE IS POETRY</span><span class="dot">✦</span>
         <span>代码是诗</span><span class="dot">✦</span>
@@ -581,15 +622,14 @@
             <span>目前档期 · <b>2026 Q3 可接新项目</b></span>
           </div>
 
-          <a href="mailto:hello@xinghe.dev" class="big-mail magnetic" data-magnetic>
-            <span class="big-mail-en">hello@xinghe.dev</span>
+          <a href="https://github.com/ArbitraryOP" target="_blank" rel="noopener" class="big-mail magnetic" data-magnetic>
+            <span class="big-mail-en">github.com/ArbitraryOP</span>
             <svg viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </a>
 
           <div class="contact-channels">
             <div><span>GH</span><a href="https://github.com/ArbitraryOP" target="_blank" rel="noopener" data-scramble>github.com/ArbitraryOP</a></div>
-            <div><span>TW</span><a href="#" data-scramble>@xinghe_dev</a></div>
-            <div><span>LK</span><a href="#" data-scramble>linkedin.com/in/xinghe</a></div>
+            <div><span>IS</span><a href="https://github.com/ArbitraryOP/xinghe/issues" target="_blank" rel="noopener" data-scramble>留言板 · Issues</a></div>
           </div>
 
           <!-- 常见问答 -->
@@ -611,25 +651,27 @@
 
         <form class="contact-form glass" id="contactForm" data-reveal="right">
           <div class="form-field">
-            <label>你的名字 / Name</label>
-            <input type="text" required />
+            <label for="fName">你的名字 / Name</label>
+            <input type="text" id="fName" required />
             <span class="field-bar"></span>
           </div>
           <div class="form-field">
-            <label>邮箱 / Email</label>
-            <input type="email" required />
+            <label for="fEmail">邮箱 / Email</label>
+            <input type="email" id="fEmail" required />
             <span class="field-bar"></span>
           </div>
           <div class="form-field">
-            <label>想说的话 / Message</label>
-            <textarea rows="4" required></textarea>
+            <label for="fMsg">想说的话 / Message</label>
+            <textarea id="fMsg" rows="4" required></textarea>
             <span class="field-bar"></span>
           </div>
+          <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
           <button type="submit" class="btn btn-primary btn-block magnetic" data-magnetic>
             <span class="btn-text" data-scramble>送出讯息</span>
             <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             <span class="btn-shine"></span>
           </button>
+          <p class="form-note">留言将以 GitHub Issue 的形式公开发出，需要登录 GitHub 账号。</p>
         </form>
       </div>
     </section>
@@ -639,7 +681,7 @@
       <div class="foot-col foot-brand" data-reveal style="--i:0">
         <div class="foot-logo"><span class="logo-mark">◆</span> XINGHE</div>
         <p>在代码、设计与想象的交界处造物。</p>
-        <span class="foot-copy">© 2026 · Made with curiosity</span>
+        <span class="foot-copy">© <span id="footYear">2026</span> · Made with curiosity</span>
       </div>
       <div class="foot-col" data-reveal style="--i:1">
         <span class="foot-h">导航</span>
@@ -651,8 +693,7 @@
       <div class="foot-col" data-reveal style="--i:2">
         <span class="foot-h">社交</span>
         <a href="https://github.com/ArbitraryOP" target="_blank" rel="noopener" data-scramble>GitHub</a>
-        <a href="#" data-scramble>Twitter</a>
-        <a href="mailto:hello@xinghe.dev" data-scramble>Email</a>
+        <a href="https://github.com/ArbitraryOP/xinghe/issues" target="_blank" rel="noopener" data-scramble>留言板</a>
       </div>
       <div class="foot-col foot-end" data-reveal style="--i:3">
         <span class="foot-h">坐标</span>

@@ -10,7 +10,7 @@
   --bg-2: #14142a;
   --ink: #f4f4ff;
   --ink-soft: #aab0d0;
-  --ink-dim: #6a6f8e;
+  --ink-dim: #7e84a8;
   --accent:   #b18cff;
   --accent-2: #6ee7ff;
   --accent-3: #ff7eb6;
@@ -28,13 +28,15 @@ html, body {
   font-family: "Inter", "Noto Serif SC", system-ui, sans-serif;
   font-weight: 400;
   line-height: 1.6;
-  overflow-x: hidden;
   cursor: none;
 }
-html { scroll-behavior: smooth; }
+/* 横向裁剪只放在根元素：若 body 也设 overflow-x:hidden，body 会成为
+   滚动容器，后代的 position:sticky 将永远无法钉住 */
+html { scroll-behavior: smooth; overflow-x: hidden; }
 
 body {
   min-height: 100vh;
+  min-height: 100svh;
   position: relative;
 }
 
@@ -61,7 +63,17 @@ img { display: block; max-width: 100%; }
 .loader.done .loader-content { opacity: 0; transform: translateY(-20px); }
 .loader.done .loader-curtain.top    { transform: translateY(-100%); }
 .loader.done .loader-curtain.bottom { transform: translateY( 100%); }
-.loader.gone { opacity: 0; pointer-events: none; transition: opacity .4s; }
+.loader.gone {
+  opacity: 0;
+  visibility: hidden; /* 淡出结束后移出无障碍树 */
+  pointer-events: none;
+  transition: opacity .4s, visibility .4s;
+}
+/* JS 失效兜底：8s 后自动揭幕（JS 正常时遮罩早已淡出，对其无感知） */
+.loader { animation: loaderFailsafe .6s ease 8s forwards; }
+@keyframes loaderFailsafe {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
 
 .loader-curtain {
   position: absolute;
@@ -212,6 +224,15 @@ img { display: block; max-width: 100%; }
 }
 @media (hover: none) { #fxCursorCanvas { display: none; } }
 
+/* 自定义光标只在精确指针设备启用：触屏 / 粗指针一律还原系统光标 */
+@media (hover: none), (pointer: coarse) {
+  html, body { cursor: auto; }
+  a, button, input, textarea { cursor: auto; }
+  .cursor-dot,
+  .cursor-ring,
+  .mouse-glow { display: none; }
+}
+
 /* =========================================================
    3. 极光背景
    ========================================================= */
@@ -230,20 +251,30 @@ img { display: block; max-width: 100%; }
   border-radius: 50%;
   opacity: 0.55;
   mix-blend-mode: screen;
-  will-change: transform;
+  will-change: transform, translate;
+  /* 视差合成（唯一所有权）：JS 只写根节点变量 --fx-mx/--fx-my/--fx-scroll-y，
+     这里用独立 translate 属性合成，可与 keyframe 动画的 transform 叠加 */
+  translate: calc(var(--fx-mx, 0) * var(--blob-mx, 0) * 1px)
+             calc(var(--fx-my, 0) * var(--blob-mx, 0) * 1px - var(--fx-scroll-y, 0) * var(--blob-spd, 0) * 1px);
 }
 .aurora .a1 {
+  --blob-mx: 12;
+  --blob-spd: 0.18;
   top: -20%; left: -10%;
   background: radial-gradient(circle, var(--accent) 0%, transparent 60%);
   animation: blob1 22s ease-in-out infinite;
 }
 .aurora .a2 {
+  --blob-mx: 24;
+  --blob-spd: -0.12;
   bottom: -25%; right: -15%;
   width: 70vw; height: 70vw;
   background: radial-gradient(circle, var(--accent-3) 0%, transparent 60%);
   animation: blob2 28s ease-in-out infinite;
 }
 .aurora .a3 {
+  --blob-mx: 36;
+  --blob-spd: 0.26;
   top: 30%; right: 10%;
   width: 50vw; height: 50vw;
   background: radial-gradient(circle, var(--accent-2) 0%, transparent 60%);
@@ -251,6 +282,8 @@ img { display: block; max-width: 100%; }
   opacity: 0.45;
 }
 .aurora .a4 {
+  --blob-mx: 48;
+  --blob-spd: -0.20;
   bottom: 10%; left: 20%;
   width: 45vw; height: 45vw;
   background: radial-gradient(circle, var(--accent-4) 0%, transparent 60%);
@@ -357,9 +390,24 @@ img { display: block; max-width: 100%; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 .nav-links {
+  position: relative;
   display: flex;
   gap: 4px;
 }
+
+/* 滑动胶囊指示器：JS 注入 .nav-pill 并写 translateX / width，CSS 只管外观与缓动 */
+.nav-pill {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0;
+  width: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  opacity: 0;
+  transition: transform .35s var(--ease-out), width .35s var(--ease-out), opacity .3s;
+}
+.nav-links.has-pill .nav-pill { opacity: 1; }
 .nav-link {
   position: relative;
   padding: 6px 14px;
@@ -383,8 +431,8 @@ img { display: block; max-width: 100%; }
 }
 .nav-link:hover,
 .nav-link.active { color: var(--ink); }
-.nav-link:hover::before,
-.nav-link.active::before { transform: scale(1); opacity: 1; }
+/* 激活态胶囊背景由 .nav-pill 接管，::before 降级为 hover 弱底色 */
+.nav-link:hover::before { transform: scale(1); opacity: .6; }
 
 .nav-time {
   font-family: "Space Mono", monospace;
@@ -396,6 +444,54 @@ img { display: block; max-width: 100%; }
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
+
+/* ---------- 移动端汉堡导航（≤720px 启用） ---------- */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: none;
+  border: 0;
+}
+.nav-toggle-bar {
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ink);
+  transition: transform .35s var(--ease-out), opacity .25s;
+}
+/* 打开态：三横变 ✕ */
+body.nav-open .nav-toggle-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+body.nav-open .nav-toggle-bar:nth-child(2) { opacity: 0; }
+body.nav-open .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.nav-panel { display: none; }
+/* 滚动锁只在面板真正可见的窄屏生效，防跨断点后残留冻结页面
+   （script.js 的 resize 监听也会兜底关闭面板） */
+@media (max-width: 720px) {
+  body.nav-open { overflow: hidden; }
+}
+/* 面板打开时把导航胶囊抬到面板之上，保证 ✕ 可点 */
+body.nav-open .nav-bar { z-index: 200; }
+
+.nav-panel-links li {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .5s var(--ease-out), transform .5s var(--ease-out);
+}
+body.nav-open .nav-panel-links li { opacity: 1; transform: translateY(0); }
+body.nav-open .nav-panel-links li:nth-child(1) { transition-delay: .06s; }
+body.nav-open .nav-panel-links li:nth-child(2) { transition-delay: .11s; }
+body.nav-open .nav-panel-links li:nth-child(3) { transition-delay: .16s; }
+body.nav-open .nav-panel-links li:nth-child(4) { transition-delay: .21s; }
+body.nav-open .nav-panel-links li:nth-child(5) { transition-delay: .26s; }
+body.nav-open .nav-panel-links li:nth-child(6) { transition-delay: .31s; }
+body.nav-open .nav-panel-links li:nth-child(7) { transition-delay: .36s; }
 
 /* =========================================================
    6. 章节指示器
@@ -448,6 +544,24 @@ img { display: block; max-width: 100%; }
 .indi-list li:hover { color: var(--ink-soft); }
 .indi-list li.active { color: var(--ink); }
 
+/* li 内三个 span 包进 <button class="indi-btn">：重置按钮样式并镜像 li 的内部布局，视觉零变化 */
+.indi-btn {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+/* 精确指针设备沿用全站自定义光标（隐藏系统光标） */
+@media (hover: hover) and (pointer: fine) {
+  .indi-btn { cursor: none; }
+}
+
 .indi-num { opacity: 0.6; font-size: 10px; }
 .indi-name {
   opacity: 0;
@@ -455,7 +569,8 @@ img { display: block; max-width: 100%; }
   transition: opacity .35s var(--ease-out), transform .35s var(--ease-out);
 }
 .indi-list li:hover .indi-name,
-.indi-list li.active .indi-name { opacity: 1; transform: translateX(0); }
+.indi-list li.active .indi-name,
+.indi-btn:focus-visible .indi-name { opacity: 1; transform: translateX(0); }
 .indi-dot {
   width: 6px; height: 6px;
   border-radius: 50%;
@@ -655,6 +770,7 @@ section {
    ========================================================= */
 .hero {
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   position: relative;
@@ -1357,6 +1473,28 @@ section {
   border-color: var(--accent);
 }
 
+/* 构思中卡片：箭头换成玻璃小徽标（参照 .wf-badge，字号更小） */
+.work-badge {
+  position: absolute;
+  top: 32px; right: 34px;
+  display: inline-block;
+  font-family: "Space Mono", monospace;
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--ink-soft);
+  padding: 5px 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-bd);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.work-card.is-wip { cursor: default; }
+/* 精确指针设备沿用全站自定义光标（隐藏系统光标） */
+@media (hover: hover) and (pointer: fine) {
+  .work-card.is-wip { cursor: none; }
+}
+
 /* Tilt 3D */
 .tilt-card {
   transform-style: preserve-3d;
@@ -1389,7 +1527,8 @@ section {
 
 .quote-track {
   display: inline-flex;
-  gap: 50px;
+  /* 间距用子项 margin 而非容器 gap：-50% 循环要求半段宽度内含整数个间距，
+     gap 会恒差半个间距导致每圈接缝跳动 */
   align-items: center;
   font-family: "Noto Serif SC", serif;
   font-weight: 900;
@@ -1399,6 +1538,7 @@ section {
   -webkit-text-stroke: 1px rgba(244, 244, 255, 0.5);
   animation: marquee 40s linear infinite;
 }
+.quote-track > span { margin-right: 50px; }
 .quote-track:hover { animation-play-state: paused; }
 .quote-track span:not(.dot):nth-child(4n + 1) {
   color: var(--ink);
@@ -1415,6 +1555,9 @@ section {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
+
+/* 跑马灯重复内容的包裹层：display:contents 不参与布局，不破坏横向排布 */
+.track-half { display: contents; }
 
 /* =========================================================
    15. CONTACT
@@ -1517,7 +1660,10 @@ section {
   font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--ink-dim);
+  transition: color .2s;
 }
+/* 聚焦时标签点亮 */
+.form-field:focus-within label { color: var(--accent); }
 .form-field input,
 .form-field textarea {
   width: 100%;
@@ -1527,6 +1673,7 @@ section {
   border-bottom: 1px solid var(--line);
   color: var(--ink);
   font-size: 15px;
+  caret-color: var(--accent);
   transition: border-color .25s;
   resize: none;
 }
@@ -1545,6 +1692,21 @@ section {
 }
 .form-field input:focus ~ .field-bar,
 .form-field textarea:focus ~ .field-bar { transform: scaleX(1); }
+
+/* 提交状态提示（aria-live）：min-height 占位防跳动 */
+.form-status {
+  min-height: 1.4em;
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  letter-spacing: .08em;
+  color: var(--accent);
+}
+/* 留言渠道说明（GitHub Issue 公开留言） */
+.form-note {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--ink-dim);
+}
 
 /* =========================================================
    16. 页脚
@@ -1581,20 +1743,57 @@ section {
   .section-indicator { display: none; }
 }
 @media (max-width: 720px) {
-  html, body        { cursor: auto; }
-  .cursor-dot,
-  .cursor-ring      { display: none; }
-  a, button, input, textarea { cursor: auto; }
   section           { padding: 90px 6vw; }
   .nav-bar          { gap: 12px; padding: 10px 14px; }
   .nav-logo         { font-size: 11px; padding-right: 10px; }
   .nav-links        { display: none; }
   .nav-time         { padding-left: 10px; font-size: 11px; min-width: 70px; }
+
+  /* 汉堡按钮 + 全屏玻璃导航面板 */
+  .nav-toggle       { display: flex; }
+  .nav-panel {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-bg);
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .45s var(--ease-out), visibility .45s;
+  }
+  body.nav-open .nav-panel { opacity: 1; visibility: visible; pointer-events: auto; }
+  /* 不支持 backdrop-filter 时退化为实色，保证可读性 */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .nav-panel { background: rgba(8, 8, 15, 0.94); }
+  }
+  .nav-panel-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    text-align: center;
+  }
+  .nav-panel-link {
+    font-family: "Noto Serif SC", serif;
+    font-weight: 600;
+    font-size: clamp(1.6rem, 7vw, 2.2rem);
+    letter-spacing: .02em;
+    color: var(--ink-soft);
+    transition: color .25s;
+  }
+  .nav-panel-link:hover,
+  .nav-panel-link:active { color: var(--ink); }
   .hero             { padding-top: 130px; }
   .about-side       { grid-template-columns: 1fr; }
   .skill-row        { padding: 24px; }
   .work-visual      { height: 200px; }
   .work-info        { padding: 24px; }
+  .work-badge       { top: 24px; right: 24px; } /* 跟随 work-info 缩小的内边距，避免压进标题行 */
   .contact-form     { padding: 28px; }
   .footer           { flex-direction: column; gap: 10px; text-align: center; }
 }
@@ -1608,6 +1807,16 @@ section {
 .big-mail:active,
 .works-more:active,
 .back-top:active { scale: .97; }
+.hero-chip:active { scale: .96; }
+
+/* 时间线节点 hover 微状态（.tl-node 定义在 fx-extra.css，这里只追加交互层） */
+.tl-item .tl-node { transition: transform .3s var(--ease-out), box-shadow .3s; }
+.tl-item:hover .tl-node {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 6px rgba(177, 140, 255, .16);
+}
+/* 「当前」节点的脉冲动画会压过 hover box-shadow，悬停时暂停让微状态可见 */
+.tl-item:hover .tl-node.now { animation: none; }
 
 /* =========================================================
    19. 无障碍 · 尊重「减少动态效果」(prefers-reduced-motion)
@@ -1636,4 +1845,85 @@ section {
   .char,
   .word-inner,
   .fade-up { opacity: 1 !important; transform: none !important; filter: none !important; }
+}
+
+/* =========================================================
+   20. 无障碍 · 焦点环 / 跳转链接 / 屏读工具类
+   ========================================================= */
+/* 键盘焦点环（统一用青色强调，offset 留出呼吸感） */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 1px solid var(--accent-2);
+  outline-offset: 3px;
+}
+/* 表单输入此前 :focus 关掉了 outline，这里按键盘焦点补回 */
+.form-field input:focus-visible,
+.form-field textarea:focus-visible {
+  outline: 1px solid var(--accent-2);
+  outline-offset: 3px;
+}
+
+/* 跳到主内容：平时移出视口，键盘聚焦时浮出为玻璃胶囊 */
+.skip-link {
+  position: fixed;
+  top: 20px; left: 20px;
+  z-index: 300;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: rgba(13, 13, 28, 0.85);
+  border: 1px solid var(--glass-bd);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  font-family: "Space Mono", monospace;
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: var(--ink);
+  transform: translateY(calc(-100% - 24px));
+  transition: transform .3s var(--ease-out);
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 1px solid var(--accent-2);
+  outline-offset: 3px;
+}
+
+/* 仅屏幕阅读器可见 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================
+   21. 时段感知 · data-daypart 氛围覆盖
+   （基准 .aurora filter 为 blur(60px) saturate(140%)，保持 blur 一致只调色）
+   ========================================================= */
+[data-daypart="night"] .aurora { filter: blur(60px) saturate(165%) hue-rotate(-14deg); }
+[data-daypart="night"] .aurora-blob.a4 { opacity: .12; }
+[data-daypart="dusk"]  .aurora { filter: blur(60px) saturate(150%) hue-rotate(18deg); }
+[data-daypart="dawn"]  .aurora-blob.a4 { opacity: .4; }
+
+/* =========================================================
+   22. 减少动态 · 自定义光标回退
+   （script.js 在 prefers-reduced-motion 下不再驱动光标，
+   必须还原系统光标并隐藏光标元素，否则用户将没有任何光标）
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  html, body { cursor: auto; }
+  a, button, input, textarea,
+  .indi-list li, .indi-btn, .work-card.is-wip { cursor: auto; }
+  .cursor-dot,
+  .cursor-ring,
+  .mouse-glow,
+  #fxCursorCanvas { display: none; }
 }
